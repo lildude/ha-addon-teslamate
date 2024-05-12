@@ -21,8 +21,15 @@ export MQTT_USERNAME=$(bashio::config 'mqtt_user')
 export IMPORT_DIR=$(bashio::config 'import_dir')
 export PORT=4000
 export TZ=$(bashio::config 'timezone')
-export ENCRYPTION_KEY=$(bashio::config 'encryption_key')
 export DEFAULT_GEOFENCE=$(bashio::config 'default_geofence')
+encryption_key=$(bashio::config 'encryption_key')
+
+if bashio::config.is_empty 'encryption_key'; then
+  encryption_key=$(openssl rand -hex 32)
+  bashio::addon.option 'encryption_key' "$encryption_key"
+fi
+export ENCRYPTION_KEY=$(bashio::config 'encryption_key')
+
 
 # Import dashboards
 if [ $(bashio::config 'grafana_import_dashboards') == 'true' ]; then
