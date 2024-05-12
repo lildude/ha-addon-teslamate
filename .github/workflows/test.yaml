@@ -28,7 +28,7 @@ jobs:
     name: Build add-on
     strategy:
       matrix:
-        arch: ["amd64", "armv7", "aarch64", "armhf"]
+        arch: ["amd64", "armv7", "aarch64"]
 
     steps:
       - name: Check out repository
