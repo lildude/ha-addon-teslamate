@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - build.yaml
+      - config.yaml
+      - build.json
+      - config.json
+      - Dockerfile
+      - rootfs/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - build.yaml
+      - config.yaml
+      - build.json
+      - config.json
+      - Dockerfile
+      - rootfs/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build add-on
+    strategy:
+      matrix:
+        arch: ["amd64", "armv7", "aarch64", "armhf"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4.1.4
+
+      - name: Build add-on
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --test \
+            --${{ matrix.arch }} \
+            --target /data/ \
+            --addon
