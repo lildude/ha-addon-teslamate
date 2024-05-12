@@ -1,5 +1,7 @@
-#!/usr/bin/with-contenv sh
-
+#!/usr/bin/with-contenv bashio
+# -*- bash -*-
+# shellcheck shell=bash
+set -e
 ingress_entry=$(curl -X GET \
                      -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
                      -H "Content-Type: application/json" \
@@ -7,6 +9,8 @@ ingress_entry=$(curl -X GET \
                      jq -r '.data.ingress_entry')
 
 sed -i "s^url: \[^url: \[path: \"${ingress_entry}\", ^" /opt/app/releases/*/runtime.exs
+
+bashio::log.info "Starting TeslaMate"
 
 cd /opt/app
 exec /ha-bootstrap.sh bin/teslamate start
