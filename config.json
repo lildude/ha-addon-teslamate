@@ -5,13 +5,10 @@
     "description": "A self-hosted data logger for your Tesla.",
     "url": "https://github.com/lildude/ha-addon-teslamate",
     "arch": [
-        "armhf",
         "armv7",
         "aarch64",
         "amd64"
     ],
-    "startup": "application",
-    "boot": "auto",
     "ingress": true,
     "panel_icon": "mdi:car-connected",
     "panel_title": "TeslaMate",
@@ -68,6 +65,5 @@
     "map": [
         "share:rw"
     ],
-    "codenotary": "colin@symr.io",
-    "image": "ghcr.io/lildude/ha-addon-teslamate-{arch}"
+    "codenotary": "colin@symr.io"
 }
