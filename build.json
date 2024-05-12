@@ -2,7 +2,7 @@
   "build_from": {
     "aarch64": "teslamate/teslamate:not-used",
     "amd64": "teslamate/teslamate:not-used",
-    "armv7": "teslamate/teslamate:not-used",
+    "armv7": "teslamate/teslamate:not-used"
   },
   "args": {
     "teslamate_version": "1.28.5"
