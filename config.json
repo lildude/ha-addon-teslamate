@@ -3,6 +3,7 @@
     "version": "dev",
     "slug": "teslamate",
     "description": "A self-hosted data logger for your Tesla.",
+    "url": "https://github.com/lildude/ha-addon-teslamate",
     "arch": [
         "armhf",
         "armv7",
@@ -15,25 +16,25 @@
     "panel_icon": "mdi:car-connected",
     "panel_title": "TeslaMate",
     "options": {
-        "database_user": "username",
-        "database_pass": "password",
-        "database_name": "databasename",
+        "database_user": null,
+        "database_pass": null,
+        "database_name": "teslamate",
         "database_host": "29b65938-postgres",
         "database_ssl": false,
         "database_port": 5432,
         "default_geofence": "",
         "disable_mqtt": false,
-        "encryption_key": "myencryptionkey",
+        "encryption_key": null,
         "grafana_import_dashboards": false,
         "grafana_folder_name": "TeslaMate",
         "grafana_host": "a0d7b954-grafana",
         "grafana_port": 3000,
-        "grafana_user": "admin",
-        "grafana_pass": "pass",
+        "grafana_user": null,
+        "grafana_pass": null,
         "import_dir": "/share/teslamate",
         "mqtt_host": "core-mosquitto",
-        "mqtt_user": "user",
-        "mqtt_pass": "pass",
+        "mqtt_user": null,
+        "mqtt_pass": null,
         "mqtt_tls": true,
         "mqtt_tls_accept_invalid_certs": false,
         "mqtt_namespace": "",
@@ -67,6 +68,6 @@
     "map": [
         "share:rw"
     ],
-    "url": "https://github.com/matt-FFFFFF/hassio-addon-repository/blob/master/teslamate/README.md",
-    "image": "mattffffff/teslamate-{arch}"
+    "codenotary": "colin@symr.io",
+    "image": "ghcr.io/lildude/ha-addon-teslamate-{arch}"
 }

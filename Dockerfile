@@ -1,10 +1,8 @@
-ARG TESLAMATE_TAG
-
-FROM teslamate/grafana:${TESLAMATE_TAG} as grafana
+FROM teslamate/grafana:1.28.5 as grafana
 
 #---
 
-FROM teslamate/teslamate:${TESLAMATE_TAG}
+FROM teslamate/teslamate:1.28.5
 
 ARG ARCH
 ARG BASHIO_VERSION=0.11.0
