@@ -65,5 +65,6 @@
     "map": [
         "share:rw"
     ],
-    "codenotary": "colin@symr.io"
+    "codenotary": "colin@symr.io",
+    "image": "ghcr.io/lildude/ha-addon-teslamate-{arch}"
 }
