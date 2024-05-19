@@ -17,15 +17,8 @@ configuration:
   database_ssl:
     name: Database SSL
     description: Use SSL to connect to the database.
-  encryption_key:
-    name: Encryption Key
-    description: A random string used as encrypt and protect the Tesla API keys. This will be auto-generated on first run if not set.
-  default_geofence:
-    name: Default Geofence
-    description: TODO Default geofence.
   disable_mqtt:
     name: Disable MQTT?
-    description: Disable MQTT
   mqtt_host:
     name: MQTT Hostname
     description: The hostname of your MQTT server.
@@ -36,14 +29,14 @@ configuration:
     name: MQTT Password
     description: The password for the user to connect to your PostgreSQL server.
   mqtt_tls:
-    name: MQTT TLS
+    name: MQTT TLS?
     description: Use TLS to connect to MQTT?
   mqtt_tls_accept_invalid_certs:
     name: MQTT TLS Accept invalid certificates
-    description: TODO Accept invalid certificates.
+    description: MQTT accepts invalid certificates.
   mqtt_namespace:
     name: MQTT Namespace
-    description: TODO MQTT namespace.
+    description: MQTT namespace.
   grafana_import_dashboards:
     name: Import Grafana Dashboards?
     description: Automatically import the grafana dashboards on startup?
@@ -65,6 +58,12 @@ configuration:
   timezone:
     name: Timezone
     description: Timezone to use for Granafa dashboards.
+  encryption_key:
+    name: Encryption Key
+    description: A random string used as encrypt and protect the Tesla API keys. This will be auto-generated on first run if not set.
+  default_geofence:
+    name: Default Geofence
+    description: The default geofence to send via GEOFENCE if the car is not in a geofence.
   import_dir:
-    name: Import Directory
-    description: TODO The directory which holds something to import.
+    name: TeslaFi Import Directory
+    description: The directory which holds the TeslaFi export you would like to import into TeslaMate.
