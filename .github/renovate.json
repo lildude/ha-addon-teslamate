@@ -16,7 +16,7 @@
         "\"teslamate_version\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "datasourceTemplate": "github-releases",
-      "depNameTemplate": "teslamate/teslamate"
+      "depNameTemplate": "teslamate-org/teslamate"
     }
   ],
   "prBodyColumns": [
