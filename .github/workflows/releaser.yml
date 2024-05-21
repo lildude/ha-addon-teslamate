@@ -56,7 +56,7 @@ jobs:
 
       - name: Update addon repo
         run: |
-          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/telsamate
+          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/teslamate 
           cp -vf ${{ github.workspace }}/teslamate/*.md ${{ github.workspace }}/repo/teslamate
           jq '.version="${{ steps.semver.outputs.semver }}"' < ${{ github.workspace }}/teslamate/config.json > ${{ github.workspace }}/repo/teslamate/config.json
           echo "$(curl --silent --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .body)" > ${{ github.workspace }}/repo/teslamate/CHANGELOG.md
