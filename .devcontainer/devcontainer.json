@@ -2,7 +2,7 @@
   "name": "HA Addon: TeslaMate",
   "image": "ghcr.io/home-assistant/devcontainer:addons",
   "appPort": ["7123:8123", "7357:4357"],
-  "postStartCommand": "bash devcontainer_bootstrap",
+  "postStartCommand": "sudo sed -i 's/export SUPERVISOR_VERSION=.*/export SUPERVISOR_VERSION=2024.03.1.dev1803/' /etc/supervisor_scripts/common && bash devcontainer_bootstrap", // Workaround until https://github.com/home-assistant/supervisor/issues/5021 is fixed"
   "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
   "containerEnv": {
     "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}"
