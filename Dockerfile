@@ -27,6 +27,7 @@ RUN \
         curl \
         jq \
         nginx \
+        postgresql-client \
         tzdata \
         xz-utils \
     && rm -rf /var/lib/apt/lists/* \

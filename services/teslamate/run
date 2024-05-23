@@ -49,6 +49,12 @@ if bashio::config.true 'grafana_import_dashboards'; then
     /dashboards.sh restore
 fi
 
+# Create the PostgreSQL database if it doesn't exist
+if ! pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" -d "$DATABASE_NAME"; then
+    bashio::log.info "Creating database $DATABASE_NAME on $DATABASE_HOST"
+    psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" -c "CREATE DATABASE $DATABASE_NAME"
+fi
+
 # https://developers.home-assistant.io/blog/2023/04/13/new_limits_for_add_ons/
 ulimit -n 1048576
 
