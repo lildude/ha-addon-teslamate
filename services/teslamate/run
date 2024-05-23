@@ -2,15 +2,57 @@
 # -*- bash -*-
 # shellcheck shell=bash
 set -e
+
+# Database things
+DATABASE_HOST=$(bashio::config 'database_host')
+DATABASE_NAME=$(bashio::config 'database_name')
+DATABASE_PASS=$(bashio::config 'database_pass')
+DATABASE_PORT=$(bashio::config 'database_port')
+DATABASE_USER=$(bashio::config 'database_user')
+
+# MQTT things
+DISABLE_MQTT=$(bashio::config 'disable_mqtt')
+MQTT_HOST=$(bashio::config 'mqtt_host')
+MQTT_NAMESPACE=$(bashio::config 'mqtt_namespace')
+MQTT_PASSWORD=$(bashio::config 'mqtt_pass')
+MQTT_TLS_ACCEPT_INVALID_CERTS=$(bashio::config 'mqtt_tls_accept_invalid_certs')
+MQTT_TLS=$(bashio::config 'mqtt_tls')
+MQTT_USERNAME=$(bashio::config 'mqtt_user')
+
+# Other things
+IMPORT_DIR=$(bashio::config 'import_dir')
+PORT=4000
+TZ=$(bashio::config 'timezone')
+DEFAULT_GEOFENCE=$(bashio::config 'default_geofence')
+
+encryption_key=$(bashio::config 'encryption_key')
+if bashio::config.is_empty 'encryption_key'; then
+  encryption_key=$(openssl rand -hex 32)
+  bashio::addon.option 'encryption_key' "$encryption_key"
+fi
+ENCRYPTION_KEY=$(bashio::config 'encryption_key')
+
 ingress_entry=$(curl -X GET \
                      -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
                      -H "Content-Type: application/json" \
                      -s http://supervisor/addons/self/info | \
                      jq -r '.data.ingress_entry')
 
-sed -i "s^url: \[^url: \[path: \"${ingress_entry}\", ^" /opt/app/releases/*/runtime.exs
+export URL_PATH=$ingress_entry
+
+export DATABASE_HOST DATABASE_NAME DATABASE_PASS DATABASE_PORT DATABASE_USER \
+    DISABLE_MQTT MQTT_HOST MQTT_NAMESPACE MQTT_PASSWORD MQTT_TLS_ACCEPT_INVALID_CERTS \
+    MQTT_TLS MQTT_USERNAME IMPORT_DIR PORT TZ DEFAULT_GEOFENCE ENCRYPTION_KEY URL_PATH
+
+# Import dashboards
+if bashio::config.true 'grafana_import_dashboards'; then
+    /dashboards.sh restore
+fi
+
+# https://developers.home-assistant.io/blog/2023/04/13/new_limits_for_add_ons/
+ulimit -n 1048576
 
 bashio::log.info "Starting TeslaMate"
 
 cd /opt/app
-exec /ha-bootstrap.sh bin/teslamate start
+exec bin/teslamate start
