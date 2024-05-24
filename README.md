@@ -35,7 +35,7 @@ To get the full experience, it is recommended that you also install the communit
    [![Open add-on repo on your Home Assistant instance][repo-btn]][addon]
 
 1. Install this add-on.
-1. Install the PostgreSQL add-on and configure and start it, if you wish to use this add-on. The database name you use is the one you'll need to use in the TeslaMate configuration, or you need to manually create the database.
+1. Install the PostgreSQL add-on and configure and start it, if you wish to use this add-on. The database name isn't important here as the TeslaMate addon will create the database you name in the settings if it doesn't exist.
 1. Configure Grafana as detailed in this addon's documentation.
 1. Enter your PostgreSQL configuration information.
 1. Enter your Grafana configuration information.
