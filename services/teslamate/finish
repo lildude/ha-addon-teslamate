@@ -1,2 +1,9 @@
-#!/bin/sh
-s6-svscanctl -t /var/run/s6/services
+#!/command/with-contenv bashio
+# -*- bash -*-
+# shellcheck shell=bash
+if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
+  bashio::log.warning "TeslaMate crashed, halting add-on"
+  /run/s6/basedir/bin/halt
+fi
+
+bashio::log.info "TeslaMate stopped, restarting..."

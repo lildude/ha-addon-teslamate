@@ -6,20 +6,26 @@ on:
         required: true
         default: i
 
-name: Create release
+name: Releaser
 
 jobs:
-  build:
-    name: create_release
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.semver.outputs.semver }}
+    permissions:
+      contents: write
+      packages: write
     steps:
-      - name: Checkout Teslamate
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           path: teslamate
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Get latest release
         run: |
-          echo "latest_release=$(curl --silent https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .tag_name | sed s/v// )" >> $GITHUB_ENV
+          echo "latest_release=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --silent https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .tag_name | sed s/v// )" >> $GITHUB_ENV
       - name: Increment semver
         id: semver
         uses: matt-FFFFFF/simple-semver@v0.1.1
@@ -33,34 +39,42 @@ jobs:
           git tag -a v${{ steps.semver.outputs.semver }} -m 'Release automation'
           git push --tags
         working-directory: ${{ github.workspace }}/teslamate
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+      - name: Create release
+        uses: softprops/action-gh-release@v2.0.4
         with:
           tag_name: v${{ steps.semver.outputs.semver }}
-          release_name: Release v${{ steps.semver.outputs.semver }}
-          body_path: ${{ github.workspace }}/teslamate/CHANGELOG.md
+          generate_release_notes: true
           draft: false
           prerelease: false
-      - name: Checkout repository
-        uses: actions/checkout@v4
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout addon repo
+        uses: actions/checkout@v4.1.4
         with:
           path: repo
-          repository: matt-FFFFFF/hassio-addon-repository
-          token: ${{ secrets.REPO_PAT }}
+          repository: lildude/ha-addons
+          token: ${{ secrets.HA_ADDONS_PAT }}
+
       - name: Update addon repo
         run: |
-          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/teslamate
+          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/teslamate 
           cp -vf ${{ github.workspace }}/teslamate/*.md ${{ github.workspace }}/repo/teslamate
           jq '.version="${{ steps.semver.outputs.semver }}"' < ${{ github.workspace }}/teslamate/config.json > ${{ github.workspace }}/repo/teslamate/config.json
+          echo "$(curl --silent --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .body)" > ${{ github.workspace }}/repo/teslamate/CHANGELOG.md
       - name: Add changes to addon repo
         run: |
           if [ "$(git status -s)" ]; then
             git add .
-            git commit -m 'Update from hassio-addon-teslamate'
+            git commit -m 'Update ha-addon-teslamate to v${{ steps.semver.outputs.semver }}'
             git push
           fi
         working-directory: ${{ github.workspace }}/repo/teslamate
 
+  build:
+    name: Build addon
+    needs: release
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/publisher.yaml
+    with:
+      version: ${{ needs.release.outputs.version }}

@@ -1,0 +1,69 @@
+configuration:
+  database_user:
+    name: Database Username
+    description: The username used to connect to your PostgreSQL server.
+  database_pass:
+    name: Database Password
+    description: The password for the user to connect to your PostgreSQL server.
+  database_port:
+    name: Database Port
+    description: The port your PostgreSQL server is listening on.
+  database_host:
+    name: Database Hostname
+    description: The hostname of your PostgreSQL server.
+  database_name:
+    name: Database Name
+    description: The name of the PostgreSQL database.
+  database_ssl:
+    name: Database SSL
+    description: Use SSL to connect to the database.
+  disable_mqtt:
+    name: Disable MQTT?
+  mqtt_host:
+    name: MQTT Hostname
+    description: The hostname of your MQTT server.
+  mqtt_user:
+    name: MQTT Username
+    description: The username used to connect to your MQTT server.
+  mqtt_pass:
+    name: MQTT Password
+    description: The password for the user to connect to your PostgreSQL server.
+  mqtt_tls:
+    name: MQTT TLS?
+    description: Use TLS to connect to MQTT?
+  mqtt_tls_accept_invalid_certs:
+    name: MQTT TLS Accept invalid certificates
+    description: MQTT accepts invalid certificates.
+  mqtt_namespace:
+    name: MQTT Namespace
+    description: MQTT namespace.
+  grafana_import_dashboards:
+    name: Import Grafana Dashboards?
+    description: Automatically import the grafana dashboards on startup?
+  grafana_folder_name:
+    name: Grafana Folder Name
+    description: Folder within Grafana to store all the dashboards.
+  grafana_host:
+    name: Grafana Hostname
+    description: The hostname of your Grafana server.
+  grafana_port:
+    name: Grafana Port
+    description: The port your Grafana server is listening on.
+  grafana_user:
+    name: Grafana Username
+    description: The username used to connect to your Grafana server.
+  grafana_pass:
+    name: Grafana Password
+    description: The password for the user to connect to your Grafana server.
+  timezone:
+    name: Timezone
+    description: Timezone to use for Granafa dashboards.
+  encryption_key:
+    name: Encryption Key
+    description: A random string used as encrypt and protect the Tesla API keys. This will be auto-generated on first run if not set.
+  default_geofence:
+    name: Default Geofence
+    description: The default geofence to send via GEOFENCE if the car is not in a geofence.
+  import_dir:
+    name: TeslaFi Import Directory
+    description: The directory which holds the TeslaFi export you would like to import into TeslaMate.

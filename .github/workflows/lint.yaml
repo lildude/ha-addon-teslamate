@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint add-on
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v4.1.4
+
+      - name: 🚀 Run Home Assistant Add-on Lint
+        uses: frenck/action-addon-linter@v2
+        with:
+          path: "./"
+
+      - name: Check versions match
+        run: |
+          docker_ver=$(grep "FROM teslamate/teslamate" Dockerfile | cut -d':' -f2)
+          build_ver=$(jq -r ".args.teslamate_version" build.json)
+          if [ "$docker_ver" != "$build_ver" ]; then
+            echo -e "\033[31;1mTeslaMate versions don't match: Dockerfile => ${docker_ver} | build.json => ${build_ver}\033[0m"
+            exit 1
+          fi
+          echo -e "\033[32;1mTeslaMate versions match: Dockerfile => ${docker_ver} | build.json => ${build_ver}\033[0m"

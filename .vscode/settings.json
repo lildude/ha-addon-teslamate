@@ -1,0 +1,17 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "**/build.json"
+      ],
+      "url": "https://raw.githubusercontent.com/frenck/action-addon-linter/main/src/build.schema.json"
+    },
+    {
+      "fileMatch": [
+        "**/config.json"
+      ],
+      "url": "https://raw.githubusercontent.com/frenck/action-addon-linter/main/src/config.schema.json"
+    }
+  ],
+  "json.schemaDownload.enable": true
+}
