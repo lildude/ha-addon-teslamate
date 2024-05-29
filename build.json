@@ -5,7 +5,7 @@
     "armv7": "teslamate/teslamate:not-used"
   },
   "args": {
-    "teslamate_version": "1.28.5"
+    "teslamate_version": "1.29.1"
   },
   "codenotary": {
     "signer": "colin@symr.io"
