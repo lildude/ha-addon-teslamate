@@ -1,4 +1,4 @@
-FROM teslamate/grafana:1.28.5 as grafana
+FROM teslamate/grafana:1.29.1 as grafana
 
 #---
 
