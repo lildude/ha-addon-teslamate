@@ -16,7 +16,7 @@ This add-on allows you to run [TeslaMate][teslamate] on your Home Assistant serv
 This add-on is a fork of the unmaintained add-on at <https://github.com/matt-FFFFFF/hassio-addon-teslamate>.
 Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 
-[![Sponsor me to maintain this addon][sponsor-badge]](https://github.com/sponsors/lildude)
+[![Sponsor me to maintain this add-on][sponsor-badge]](https://github.com/sponsors/lildude)
 
 ![TeslaMate Version][teslamate-version]
 ![Ingress][ingres-badge]
@@ -38,8 +38,8 @@ To get the full experience, it is recommended that you also install the communit
    [![Open add-on repo on your Home Assistant instance][repo-btn]][addon]
 
 1. Install this add-on.
-1. Install the PostgreSQL add-on and configure and start it, if you wish to use this add-on. The database name isn't important here as the TeslaMate addon will create the database you name in the settings if it doesn't exist.
-1. Configure Grafana as detailed in this addon's documentation.
+1. Install the PostgreSQL add-on and configure and start it, if you wish to use this add-on. The database name isn't important here as the TeslaMate add-on will create the database you name in the settings if it doesn't exist.
+1. Configure Grafana as detailed in this add-on's documentation.
 1. Enter your PostgreSQL configuration information.
 1. Enter your Grafana configuration information.
 1. Enter your MQTT configuration information.

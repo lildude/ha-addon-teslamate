@@ -11,7 +11,7 @@ A self-hosted data logger for your Tesla 🚘
 - Visualization and data analysis with **Grafana**
 - Vehicle data is published to a local **MQTT** Broker
 
-This addon allows you to run [TeslaMate][teslamate] on your Home Assistant server based on the the official TeslaMate [docker image][docker].
+This add-on allows you to run [TeslaMate][teslamate] on your Home Assistant server based on the the official TeslaMate [docker image][docker].
 
 ## Configuration
 
@@ -64,7 +64,7 @@ See the [official docs][mosquitto-docs] on how to configure access control with 
 
 #### Grafana Options
 
-I recommend you use the existing [Grafana addon][grafana-addon] from the community addons, if you do, please enable the following plugins in your yaml configurations, e.g.
+I recommend you use the existing [Grafana add-on][grafana-addon] from the community add-ons, if you do, please enable the following plugins in your yaml configurations, e.g.
 
 ```yaml
 plugins:
@@ -87,7 +87,7 @@ certfile: fullchain.pem    # optional if you are using TLS
 keyfile: privkey.pem       # optional if you are using TLS
 ```
 
-_Note_ that the security admin password and usernames can only be set on the first start of the Grafana addon, so if you already have it configured you'll need to use the same details or remove the add-on and re-add it.
+_Note_ that the security admin password and usernames can only be set on the first start of the Grafana add-on, so if you already have it configured you'll need to use the same details or remove the add-on and re-add it.
 
 - `grafana_import_dashboards`: (Optional, but recommended) Automatically import the grafana dashboards on startup?
 
@@ -122,11 +122,11 @@ It is now possible to import CSV data from TeslaFi, refer to the [official docs]
 Follow this process:
 
 1. Copy the CSV data to the `/share/teslamate` folder on your Home Assistant instance.
-   You can do this using the [Samba][samba-addon] or [SSH][ssh-addon] addons.
+   You can do this using the [Samba][samba-addon] or [SSH][ssh-addon] add-ons.
 
 2. Make sure the `import_path` configuration setting is set to `/share/teslamate`.
 
-3. Restart the TeslaMate addon and navigate to the web UI, you should be presented with the import screen.
+3. Restart the TeslaMate add-on and navigate to the web UI, you should be presented with the import screen.
 
 4. Import the data
 
