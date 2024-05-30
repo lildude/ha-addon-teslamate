@@ -13,7 +13,7 @@ A self-hosted data logger for your Tesla 🚘
 
 This add-on allows you to run [TeslaMate][teslamate] on your Home Assistant server based on the the official TeslaMate [docker image][docker].
 
-This add-on is a fork of the no longer maintained add-on at <https://github.com/matt-FFFFFF/hassio-addon-teslamate>.
+This add-on is a fork of the unmaintained add-on at <https://github.com/matt-FFFFFF/hassio-addon-teslamate>.
 Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 
 [![Sponsor me to maintain this addon][sponsor-badge]](https://github.com/sponsors/lildude)
