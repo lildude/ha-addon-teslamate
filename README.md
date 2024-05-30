@@ -11,7 +11,10 @@ A self-hosted data logger for your Tesla 🚘
 - Visualization and data analysis with **Grafana**
 - Vehicle data is published to a local **MQTT** Broker
 
-This addon allows you to run [TeslaMate][teslamate] on your Home Assistant server based on the the official TeslaMate [docker image][docker].
+This add-on allows you to run [TeslaMate][teslamate] on your Home Assistant server based on the the official TeslaMate [docker image][docker].
+
+This add-on is a fork of the no longer maintained add-on at <https://github.com/matt-FFFFFF/hassio-addon-teslamate>.
+Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 
 [![Sponsor me to maintain this addon][sponsor-badge]](https://github.com/sponsors/lildude)
 
@@ -45,6 +48,25 @@ To get the full experience, it is recommended that you also install the communit
 1. Check the logs of the add-on to see if everything went well.
 1. Click the `OPEN WEB UI` button to open TeslaMate.
 
+## Migrating to this version of the add-on
+
+Migrating to this version add-on should not result in any loss of data, but you can never be too careful, so I recommend you take a full backup of your Home Assistant instance and also a direct backup of the TeslaMate database as detailed in the [TeslaMate documentation][teslamate-backup] before proceeding.
+
+To migrate:
+
+1. Install this version of the TeslaMate add-on as per the details above. You can keep your current version installed.
+1. Open the old add-on configuration options.
+1. Click the three dots and select "Edit in YAML".
+1. Highlight and copy all the options.
+1. Open this add-on's configuration options.
+1. Click the three dots and select "Edit in YAML".
+1. Replace all content with the configuration copied above.
+1. Stop the old add-on.
+1. Start the new add-on.
+1. Uninstall the old add-on.
+
+Everything should pick up where it was before.
+
 [addon]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Flildude%2Fha-addons
 [addons-repo]: https://github.com/lildude/ha-addons
 [archs]: https://img.shields.io/badge/dynamic/json?color=green&label=Arch&query=%24.arch&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fconfig.json
@@ -56,5 +78,6 @@ To get the full experience, it is recommended that you also install the communit
 [postgres]: https://github.com/matt-FFFFFF/hassio-addon-postgres
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 [sponsor-badge]: https://img.shields.io/badge/Sponsor_Me-%E2%9D%A4-ec6cb9?logo=GitHub
+[teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore
 [teslamate-version]: https://img.shields.io/badge/dynamic/json?label=TeslaMate%20Version&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fbuild.json&query=%24.args.teslamate_version
 [teslamate]: https://github.com/teslamate-org/teslamate/
