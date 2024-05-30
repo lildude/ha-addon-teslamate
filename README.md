@@ -50,20 +50,20 @@ To get the full experience, it is recommended that you also install the communit
 
 ## Migrating to this version of the add-on
 
-Migrating to this version add-on should not result in any loss of data, but you can never be too careful, so I recommend you take a full backup of your Home Assistant instance and also a direct backup of the TeslaMate database as detailed in the [TeslaMate documentation][teslamate-backup] before proceeding.
+Migrating to this version of the add-on should not result in any loss of data, but you can never be too careful, so I recommend you take a full backup of your Home Assistant instance and also a direct backup of the TeslaMate database as detailed in the [TeslaMate documentation][teslamate-backup] before proceeding.
 
 To migrate:
 
-1. Install this version of the TeslaMate add-on as per the details above. You can keep your current version installed.
+1. Install this version of the TeslaMate add-on as per the details above. Keep your current version installed for now.
 1. Open the old add-on configuration options.
-1. Click the three dots and select "Edit in YAML".
+1. Click the three dots at the top and select "Edit in YAML".
 1. Highlight and copy all the options.
 1. Open this add-on's configuration options.
-1. Click the three dots and select "Edit in YAML".
+1. Click the three dots at the top and select "Edit in YAML".
 1. Replace all content with the configuration copied above.
 1. Stop the old add-on.
 1. Start the new add-on.
-1. Uninstall the old add-on.
+1. Verify everything is working as before and uninstall the old add-on.
 
 Everything should pick up where it was before.
 
