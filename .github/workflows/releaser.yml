@@ -39,6 +39,15 @@ jobs:
           git tag -a v${{ steps.semver.outputs.semver }} -m 'Release automation'
           git push --tags
         working-directory: ${{ github.workspace }}/teslamate
+      - name: Get TeslaMate release notes
+        run: |
+          gh pr list --repo lildude/ha-addon-teslamate --state=merged --search="Update TeslaMate" --limit=1 --json=body --jq '.[].body' | sed -n "/<\/summary>/,/<\/details>/p" | sed '1d;$d' > changelog.tmp
+          if [ -s changelog.tmp ]; then
+            echo "## TeslaMate Release Notes" > CHANGELOG.txt
+            cat changelog.tmp >> CHANGELOG.txt
+            echo "---" >> CHANGELOG.txt
+          fi
+          rm -f CHANGELOG.txt
       - name: Create release
         uses: softprops/action-gh-release@v2.0.5
         with:
@@ -56,7 +65,7 @@ jobs:
 
       - name: Update addon repo
         run: |
-          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/teslamate 
+          cp -vf ${{ github.workspace }}/teslamate/*.png ${{ github.workspace }}/repo/teslamate
           cp -vf ${{ github.workspace }}/teslamate/*.md ${{ github.workspace }}/repo/teslamate
           jq '.version="${{ steps.semver.outputs.semver }}"' < ${{ github.workspace }}/teslamate/config.json > ${{ github.workspace }}/repo/teslamate/config.json
           echo "$(curl --silent --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .body)" > ${{ github.workspace }}/repo/teslamate/CHANGELOG.md
