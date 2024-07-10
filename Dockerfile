@@ -2,7 +2,7 @@ FROM teslamate/grafana:1.29.1 as grafana
 
 #---
 
-FROM teslamate/teslamate:1.29.1
+FROM teslamate/teslamate:1.30.1
 
 ARG BUILD_ARCH
 ARG BASHIO_VERSION=0.16.2
