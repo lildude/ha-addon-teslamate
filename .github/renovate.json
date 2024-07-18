@@ -14,7 +14,7 @@
       "customType": "regex",
       "fileMatch": "^build.json$",
       "matchStrings": [
-        "\"teslamate_version\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
+        "\"teslamate_version\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "teslamate-org/teslamate"
