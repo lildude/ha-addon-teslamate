@@ -29,7 +29,7 @@ Remember to restart the add-on when the configuration is changed.
 
 - `database_port`: The port your PostgreSQL server is listening on. Default: `5432`.
 
-- `database_host`: The hostname of your PostgreSQL server. Default: `29b65938-postgres` for the [PostgreSQL add-on][postgres].
+- `database_host`: The hostname of your PostgreSQL server.
 
 - `database_name`: The name of the PostgreSQL database. Default: `teslamate`.
 
@@ -137,7 +137,6 @@ Follow this process:
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
 [grafana-datasource]: https://raw.githubusercontent.com/lildude/hassio-addon-teslamate/main/imgs/grafana-postgres.png
 [mosquitto-docs]: https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md
-[postgres]: https://github.com/matt-FFFFFF/hassio-addon-postgres
 [samba-addon]: https://github.com/home-assistant/addons/blob/master/samba/DOCS.md
 [ssh-addon]: https://github.com/home-assistant/addons/blob/master/ssh/DOCS.md
 [teslafi-import]: https://docs.teslamate.org/docs/import/teslafi

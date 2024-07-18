@@ -17,7 +17,7 @@
         "database_user": null,
         "database_pass": null,
         "database_name": "teslamate",
-        "database_host": "29b65938-postgres",
+        "database_host": null,
         "database_port": 5432,
         "database_ssl": false,
         "grafana_import_dashboards": true,

@@ -25,9 +25,7 @@ Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 ## Requirements
 
 TeslaMate needs a PostgreSQL database.
-All development and testing has been done using [PostgreSQL add-on][postgres] for convenience but you're welcome to use your own.
-
-For convenience, my [add-ons repository][addons-repo] includes configuration that points to the [PostgreSQL add-on][postgres] so you can install everything from one repo.
+I recommend using the [PostgreSQL add-on][alexbelgium-postgres] from @alexbelgium's repository if you aren't already using Postgres.
 
 To get the full experience, it is recommended that you also install the community [Grafana add-on][grafana-addon] and [MQTT integration][mqtt].
 
@@ -69,13 +67,13 @@ Everything should pick up where it was before.
 
 [addon]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Flildude%2Fha-addons
 [addons-repo]: https://github.com/lildude/ha-addons
+[alexbegium-postgres]: https://github.com/alexbelgium/hassio-addons/tree/master/postgres
 [archs]: https://img.shields.io/badge/dynamic/json?color=green&label=Arch&query=%24.arch&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fconfig.json
 [docker]: https://hub.docker.com/r/teslamate/teslamate
 [elixir]: https://elixir-lang.org/
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
 [ingres-badge]: https://img.shields.io/badge/dynamic/json?label=Ingress&query=%24.ingress&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fconfig.json
 [mqtt]: https://www.home-assistant.io/integrations/mqtt
-[postgres]: https://github.com/matt-FFFFFF/hassio-addon-postgres
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 [sponsor-badge]: https://img.shields.io/badge/Sponsor_Me-%E2%9D%A4-ec6cb9?logo=GitHub
 [teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore
