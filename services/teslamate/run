@@ -51,23 +51,20 @@ fi
 
 # Create the PostgreSQL database if it doesn't exist
 if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
-  bashio::log.info "Creating database $DATABASE_NAME on $DATABASE_HOST"
+  bashio::log.info "Creating database '$DATABASE_NAME' on $DATABASE_HOST"
 
-  res=$(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -c "CREATE DATABASE $DATABASE_NAME" 2>&1) || true
-  case "$res" in
-    "CREATE DATABASE")
+  if [[ -n $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "\list $DATABASE_NAME") ]]; then
+    bashio::log.info "Database $DATABASE_NAME already exists"
+  else
+    if PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -qc "CREATE DATABASE \"$DATABASE_NAME\""; then
       bashio::log.info "Database $DATABASE_NAME created"
-      ;;
-    *"already exists"*)
-      bashio::log.info "Database $DATABASE_NAME already exists"
-      ;;
-    *)
-      bashio::log.error "Failed to create database $DATABASE_NAME: $res"
+    else
+      bashio::log.error "Failed to create database $DATABASE_NAME"
       exit 1
-      ;;
-  esac
+    fi
+  fi
 else
-  bashio::log.error "PostgreSQL is not ready"
+  bashio::log.error "PostgreSQL at '$DATABASE_HOST' is not ready or unreachable"
   exit 1
 fi
 

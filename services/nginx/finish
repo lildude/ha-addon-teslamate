@@ -2,8 +2,13 @@
 # -*- bash -*-
 # shellcheck shell=bash
 if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
-  bashio::log.warning "Nginx crashed, halting add-on"
+  case "${1}" in
+    1)
+      bashio::log.error "Nginx encountered an error, halting add-on"
+      ;;
+    *)
+      bashio::log.error "Nginx crashed, halting add-on"
+      ;;
+  esac
   /run/s6/basedir/bin/halt
 fi
-
-bashio::log.info "Nginx stopped, restarting..."
