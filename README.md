@@ -67,7 +67,7 @@ Everything should pick up where it was before.
 
 [addon]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Flildude%2Fha-addons
 [addons-repo]: https://github.com/lildude/ha-addons
-[alexbegium-postgres]: https://github.com/alexbelgium/hassio-addons/tree/master/postgres
+[alexbelgium-postgres]: https://github.com/alexbelgium/hassio-addons/tree/master/postgres
 [archs]: https://img.shields.io/badge/dynamic/json?color=green&label=Arch&query=%24.arch&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fconfig.json
 [docker]: https://hub.docker.com/r/teslamate/teslamate
 [elixir]: https://elixir-lang.org/
