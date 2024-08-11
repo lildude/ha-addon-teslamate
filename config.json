@@ -36,7 +36,8 @@
         "timezone": "Europe/London",
         "import_dir": "/share/teslamate",
         "default_geofence": "",
-        "encryption_key": ""
+        "encryption_key": "",
+        "env_vars": []
     },
     "schema": {
         "database_user": "str",
@@ -61,7 +62,11 @@
         "timezone": "str",
         "import_dir": "str",
         "default_geofence": "str?",
-        "encryption_key": "password?"
+        "encryption_key": "password?",
+        "env_vars": [{
+            "name": "str?",
+            "value": "str?"
+        }]
     },
     "map": [
         "share:rw"

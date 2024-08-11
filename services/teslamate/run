@@ -44,6 +44,14 @@ export DATABASE_HOST DATABASE_NAME DATABASE_PASS DATABASE_PORT DATABASE_USER \
   DISABLE_MQTT MQTT_HOST MQTT_NAMESPACE MQTT_PASSWORD MQTT_TLS_ACCEPT_INVALID_CERTS \
   MQTT_TLS MQTT_USERNAME IMPORT_DIR PORT TZ DEFAULT_GEOFENCE ENCRYPTION_KEY URL_PATH
 
+# These are optional and applied last so we can override those set above if needed.
+for env_var in $(bashio::config 'env_vars|keys'); do
+    name=$(bashio::config "env_vars[${env_var}].name")
+    value=$(bashio::config "env_vars[${env_var}].value")
+    bashio::log.debug "Setting Env Variable ${name} to ${value}"
+    export "${name}=${value}"
+done
+
 # Import dashboards
 if bashio::config.true 'grafana_import_dashboards'; then
     /dashboards.sh restore

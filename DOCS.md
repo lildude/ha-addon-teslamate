@@ -115,6 +115,15 @@ Once you have Grafana up and running, you'll need to configure a data source to 
 
 - `import_dir`: (Optional) The path to the directory where TeslaMate should look for the TeslaMate export CSV file. Default: `/share/teslamate`.
 
+- `env_vars`: (Optional) Set additional environment variables for TeslaMate which aren't currently exposed by the configuration options in this add-on.
+
+  Each entry is made up of a name and value:
+
+  - `name`: The case-sensitive environment variable name.
+  - `value`: The value to be set in the environment variable.
+
+  Note: These will also overwrite any environment variable set using the configuration options above.
+
 ## Data Import from TeslaFi
 
 It is now possible to import CSV data from TeslaFi, refer to the [official docs][teslafi-import].
