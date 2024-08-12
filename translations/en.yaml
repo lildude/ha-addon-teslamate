@@ -67,3 +67,6 @@ configuration:
   import_dir:
     name: TeslaFi Import Directory
     description: The directory which holds the TeslaFi export you would like to import into TeslaMate.
+  env_vars:
+    name: Environment Variables
+    description: Set additional environment variables for TeslaMate which aren't currently exposed by the configuration options in this add-on.
