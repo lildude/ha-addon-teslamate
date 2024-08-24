@@ -144,7 +144,7 @@ Follow this process:
 [docker]: https://hub.docker.com/r/teslamate/teslamate
 [elixir]: https://elixir-lang.org/
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
-[grafana-datasource]: https://raw.githubusercontent.com/lildude/hassio-addon-teslamate/main/imgs/grafana-postgres.png
+[grafana-datasource]: https://raw.githubusercontent.com/lildude/ha-addon-teslamate/main/imgs/grafana-postgres.png
 [mosquitto-docs]: https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md
 [samba-addon]: https://github.com/home-assistant/addons/blob/master/samba/DOCS.md
 [ssh-addon]: https://github.com/home-assistant/addons/blob/master/ssh/DOCS.md
