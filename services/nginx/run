@@ -1,6 +1,8 @@
 #!/command/with-contenv bashio
 # -*- bash -*-
 # shellcheck shell=bash
+
+bashio::log.info "Starting NGINX..."
 if [ -f /run/nginx ]; then
   rm -f /run/nginx
 fi

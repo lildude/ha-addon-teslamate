@@ -78,7 +78,7 @@ fi
 
 ulimit -n 1048576
 
-bashio::log.info "Starting TeslaMate"
+bashio::log.info "Starting TeslaMate..."
 
 cd /opt/app
 exec $(/usr/bin/env sh) /entrypoint.sh bin/teslamate start
