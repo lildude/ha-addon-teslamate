@@ -54,7 +54,7 @@ done
 
 # Import dashboards
 if bashio::config.true 'grafana_import_dashboards'; then
-    /dashboards.sh restore
+    /dashboards.sh restore || bashio::log.error "Failed to import dashboards"
 fi
 
 # Create the PostgreSQL database if it doesn't exist
@@ -78,7 +78,7 @@ fi
 
 ulimit -n 1048576
 
-bashio::log.info "Starting TeslaMate"
+bashio::log.info "Starting TeslaMate..."
 
 cd /opt/app
 exec $(/usr/bin/env sh) /entrypoint.sh bin/teslamate start

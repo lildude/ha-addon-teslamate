@@ -1,5 +1,11 @@
 #!/command/with-contenv bashio
 # -*- bash -*-
 # shellcheck shell=bash
-mkdir /run/nginx
+
+bashio::log.info "Starting NGINX..."
+if [ -f /run/nginx ]; then
+  rm -f /run/nginx
+fi
+mkdir -p /run/nginx
+
 exec nginx -g 'daemon off;error_log /proc/1/fd/1 error;'
