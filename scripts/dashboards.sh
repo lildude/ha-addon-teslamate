@@ -11,13 +11,14 @@
 
 set -o errexit
 
-readonly HOST=$(bashio::config 'grafana_host')
-readonly PORT=$(bashio::config 'grafana_port')
-readonly USER=$(bashio::config 'grafana_user')
-readonly PASS=$(bashio::config 'grafana_pass')
-readonly DASHBOARDS_DIRECTORY="/dashboards"
-readonly FOLDER_NAME=$(bashio::config 'grafana_folder_name')
+HOST=$(bashio::config 'grafana_host')
+PORT=$(bashio::config 'grafana_port')
+USER=$(bashio::config 'grafana_user')
+PASS=$(bashio::config 'grafana_pass')
+DASHBOARDS_DIRECTORY="/dashboards"
+FOLDER_NAME=$(bashio::config 'grafana_folder_name')
 
+readonly HOST PORT USER PASS DASHBOARDS_DIRECTORY FOLDER_NAME
 
 
 main() {
@@ -25,13 +26,12 @@ main() {
 
   URL="http://$HOST:$PORT"
   LOGIN="$USER:$PASS"
-  
+
   case $task in
       backup) backup;;
       restore) restore;;
       *)     exit 1;;
   esac
-
 }
 
 
@@ -42,9 +42,7 @@ backup() {
     dashboard_json=$(get_dashboard "$dashboard")
 
     if [[ -z "$dashboard_json" ]]; then
-      echo "ERROR:
-  Couldn't retrieve dashboard $dashboard.
-      "
+      echo "ERROR: Couldn't retrieve dashboard $dashboard."
       exit 1
     fi
 
@@ -57,10 +55,18 @@ backup() {
 
 restore() {
   bashio::log.info "Checking for Grafana folder: $FOLDER_NAME"
-  FLD=$(curl --silent --show-error \
+  folders=$(curl --silent --show-error \
     --user "$LOGIN" -H "Content-Type: application/json" \
-    $URL/api/folders | jq ".[] | select(.title==\"$FOLDER_NAME\")")
-  
+    "$URL/api/folders")
+
+  if [[ $folders == *"statusCode"* ]]; then
+    bashio::log.error "Error getting Grafana folders: $(echo "$folders" | jq -r .message)"
+    bashio::log.debug "$folders"
+    exit 1
+  fi
+
+  FLD=$(echo "$folders" | jq ".[] | select(.title==\"$FOLDER_NAME\")")
+
   if [[ -z "$FLD" ]]; then
     bashio::log.info "Not found... creating"
     FLD=$(curl \
@@ -72,7 +78,7 @@ restore() {
           "$URL/api/folders")
   fi
 
-  FOLDER_ID=$(echo $FLD | jq -r .id)
+  FOLDER_ID=$(echo "$FLD" | jq -r .id)
 
   if [[ -z "$FOLDER_ID" ]]; then
     bashio::log.error "Could not determine Grafana folder id"
@@ -122,6 +128,5 @@ list_dashboards() {
     jq -r '.[] | select(.type == "dash-db") | .uri' |
     cut -d '/' -f2
 }
-
 
 main "$@"

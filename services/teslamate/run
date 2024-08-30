@@ -54,7 +54,7 @@ done
 
 # Import dashboards
 if bashio::config.true 'grafana_import_dashboards'; then
-    /dashboards.sh restore
+    /dashboards.sh restore || bashio::log.error "Failed to import dashboards"
 fi
 
 # Create the PostgreSQL database if it doesn't exist
