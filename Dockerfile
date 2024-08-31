@@ -29,7 +29,6 @@ RUN \
         postgresql-client \
         tzdata \
         xz-utils \
-    && rm -rf /var/lib/apt/lists/* \
     && S6_ARCH="${BUILD_ARCH}" \
     && if [ "${BUILD_ARCH}" = "amd64" ]; then S6_ARCH="x86_64"; \
     elif [ "${BUILD_ARCH}" = "armv7" ]; then S6_ARCH="arm"; fi \
@@ -40,8 +39,9 @@ RUN \
     && mkdir -p /tmp/bashio \
     && curl -Ls "https://github.com/hassio-addons/bashio/archive/v${BASHIO_VERSION}.tar.gz" | tar xz --strip 1 -C /tmp/bashio \
     && mv /tmp/bashio/lib /usr/lib/bashio \
+    && apt purge -y xz-utils \
     && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
-    && rm -rf /tmp/bashio
+    && rm -rf /var/lib/apt/lists/* /tmp/*
 
 COPY rootfs /
 COPY --from=grafana /dashboards /dashboards
