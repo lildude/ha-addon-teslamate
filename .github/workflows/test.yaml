@@ -44,4 +44,4 @@ jobs:
             --addon
 
       - name: Image labels
-        run: docker inspect ha-addon-teslamate/${{ matrix-arch }}-addon-teslamate:dev --format='{{json .Config.Labels}}' | jq
+        run: docker inspect ha-addon-teslamate/${{ matrix.arch }}-addon-teslamate:dev --format='{{json .Config.Labels}}' | jq
