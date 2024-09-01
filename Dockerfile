@@ -49,9 +49,3 @@ COPY --from=grafana /dashboards_internal /dashboards
 
 # S6-Overlay
 ENTRYPOINT ["/init"]
-
-LABEL \
-    org.opencontainers.image.title="Home Assistant Add-on: TeslaMate" \
-    org.opencontainers.image.description="A self-hosted data logger for your Tesla." \
-    org.opencontainers.image.source="https://github.com/lildude/ha-addon-ghostfolio/" \
-    org.opencontainers.image.licenses="MIT"
