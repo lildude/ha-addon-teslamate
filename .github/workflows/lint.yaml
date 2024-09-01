@@ -31,6 +31,7 @@ jobs:
           fi
           echo -e "\033[32;1mTeslaMate versions match: Dockerfile => ${docker_ver} | build.json => ${build_ver}\033[0m"
 
+  super-lint:
     name: Super Lint
     runs-on: ubuntu-latest
 
