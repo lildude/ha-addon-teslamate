@@ -35,7 +35,7 @@ jobs:
       - name: Get TeslaMate release notes
         run: |
           touch CHANGELOG.txt
-          last_release_date=$(gh release list --repo lildude/ha-addon-teslamate --limit=1 --json=publishedAt)
+          last_release_date=$(gh release list --repo lildude/ha-addon-teslamate --limit=1 --json=publishedAt | jq -r '.[].publishedAt')
           gh pr list --repo lildude/ha-addon-teslamate --state=merged --search="Update TeslaMate in:title closed:>$last_release_date" --limit=1 --json=body --jq '.[].body' | sed -n "/<\/summary>/,/<\/details>/p" | sed '1d;$d' > changelog.tmp
           if [ -s changelog.tmp ]; then
             echo "## TeslaMate Release Notes" > CHANGELOG.txt
