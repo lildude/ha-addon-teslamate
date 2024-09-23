@@ -16,7 +16,7 @@
     "org.opencontainers.image.description": "A self-hosted data logger for your Tesla.",
     "org.opencontainers.image.documentation": "https://github.com/lildude/ha-addon-teslamate/blob/main/DOCS.md",
     "org.opencontainers.image.licenses": "MIT",
-    "org.opencontainers.image.source": "https://github.com/lildude/ha-addon-ghostfolio/",
+    "org.opencontainers.image.source": "https://github.com/lildude/ha-addon-teslamate/",
     "org.opencontainers.image.title": "Home Assistant Add-on: TeslaMate"
   }
 }
