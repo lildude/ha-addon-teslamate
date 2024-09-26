@@ -42,3 +42,7 @@ jobs:
             --${{ matrix.arch }} \
             --target /data/ \
             --addon
+
+      - name: Image labels
+        run: |
+          docker inspect ghcr.io/lildude/ha-addon-teslamate-${{ matrix.arch }} --format='{{json .Config.Labels}}' | jq
