@@ -8,12 +8,13 @@
   "prBodyTemplate": "{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}",
   "semanticCommits": "disabled",
   "commitMessageTopic": "{{#if (containsString depName 'teslamate')}}TeslaMate{{else}}{{depName}}{{/if}}",
-  "enabledManagers": ["custom.regex", "github-actions", "dockerfile"],
+  "enabledManagers": ["custom.regex", "github-actions"],
   "customManagers": [
     {
       "customType": "regex",
       "fileMatch": "^build.json$",
       "matchStrings": [
+        "\"teslamate/teslamate:(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
         "\"teslamate_version\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "datasourceTemplate": "github-releases",
