@@ -1,3 +1,4 @@
+ARG BUILD_FROM
 ARG teslamate_version
 FROM teslamate/grafana:${teslamate_version} as grafana
 
