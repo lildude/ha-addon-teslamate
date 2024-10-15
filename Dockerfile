@@ -1,8 +1,10 @@
-FROM teslamate/grafana:1.30.1 as grafana
+ARG teslamate_version
+FROM teslamate/grafana:${teslamate_version} as grafana
 
 #---
 
-FROM teslamate/teslamate:1.30.1
+ARG BUILD_FROM
+FROM $BUILD_FROM
 
 ARG BUILD_ARCH
 ARG BASHIO_VERSION=0.16.2
