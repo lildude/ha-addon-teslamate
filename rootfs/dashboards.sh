@@ -54,6 +54,24 @@ backup() {
 
 
 restore() {
+  bashio::log.info "Checking for Grafana datasource: TeslaMate"
+  datasources=$(curl --silent --show-error \
+    --user "$LOGIN" -H "Content-Type: application/json" \
+    "$URL/api/datasources")
+
+  if [[ $datasources == *"statusCode"* ]]; then
+    bashio::log.error "Error getting Grafana datasources: $(echo "$datasources" | jq -r .message)"
+    bashio::log.debug "$datasources"
+    exit 1
+  fi
+
+  DS=$(echo "$datasources" | jq ".[] | select(.name==\"TeslaMate\")")
+
+  if [[ -z "$DS" ]]; then
+    bashio::log.error "'TeslaMate' datasource not found. Please create or rename your datasource. It must be named 'TeslaMate'."
+    exit 1
+  fi
+
   bashio::log.info "Checking for Grafana folder: $FOLDER_NAME"
   folders=$(curl --silent --show-error \
     --user "$LOGIN" -H "Content-Type: application/json" \
