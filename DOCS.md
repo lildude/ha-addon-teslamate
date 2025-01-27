@@ -105,6 +105,8 @@ _Note_ that the security admin password and usernames can only be set on the fir
 
 Once you have Grafana up and running, you'll need to configure a data source to read data from the PostgreSQL database:
 
+‼️ **Note**: The name must be `TeslaMate` as all the dashboards expect the datasource to use this name.
+
 ![Grafana Postgres data source][grafana-datasource]
 
 #### Other Options
