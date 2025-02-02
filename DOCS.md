@@ -16,6 +16,7 @@ This add-on allows you to run [TeslaMate][teslamate] on your Home Assistant serv
 ## Configuration
 
 The configuration is self-explanatory, but essentially we need details about accessing the PostgreSQL database, Grafana and optionally MQTT.
+You will also need to configure TeslaMate (see "TeslaMate Configuration" below) so the links to TeslaMate in the Grafana dashboards work.
 
 ### Options
 
@@ -125,6 +126,30 @@ Once you have Grafana up and running, you'll need to configure a data source to 
   - `value`: The value to be set in the environment variable.
 
   Note: These will also overwrite any environment variable set using the configuration options above.
+
+## TeslaMate Configuration
+
+In order for the links in the Grafana dashboards and the TeslaMate UI to link to the correct locations, you will also need to configure TeslaMate.
+Once you have started the addon, look at the log output for the section which looks like this and take note of the two lines with `=>`:
+
+```
+[09:26:32] INFO: Configure TeslaMate settings by adding these values
+                 to the URL you use to access your Home Assistant instance:
+
+  => Web App: /api/hassio_ingress/ljiIc6sOVGOSQfTRjscvLVJJS5Rxp33gsdEtf9y3oQY
+  => Dashboards: /api/hassio_ingress/G9ocwA44wt9Bcba8LvP8tDhlfFiFnnPftOZBwp-Pgzs
+
+```
+
+From the addon Info tab, click "Open Web UI", enter the Tesla API access and refresh tokens if you haven't already, and then go to TeslaMate's Settings.
+Scroll to the very bottom and set each of the URLs to the URL you use to access your Home Assistant instance with each of the above appended.
+
+For example, if you access your Home Assistant instance at `https://ha.example.com`, set each as follows:
+
+- Web App: `https://ha.example.com/api/hassio_ingress/ljiIc6sOVGOSQfTRjscvLVJJS5Rxp33gsdEtf9y3oQY`
+- Dashboards: `https://ha.example.com/api/hassio_ingress/G9ocwA44wt9Bcba8LvP8tDhlfFiFnnPftOZBwp-Pgzs`
+
+Do _not_ use these values. Use the values from your log output.
 
 ## Data Import from TeslaFi
 
