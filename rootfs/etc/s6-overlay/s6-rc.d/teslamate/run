@@ -76,9 +76,12 @@ else
   exit 1
 fi
 
-if [[ -z $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" "$DATABASE_NAME" -Atqc "SELECT 1 FROM settings WHERE base_url LIKE '%api/hassio_ingress%'" 2&> /dev/null ) ]]; then
+if [[ -z $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" "$DATABASE_NAME" -Atqc "SELECT 1 FROM settings WHERE base_url LIKE '%api/hassio_ingress%'" 2> /dev/null ) ]]; then
   teslamate_ingress=$(bashio::addon.ingress_entry)
   grafana_ingress=$(bashio::addon.ingress_entry $(bashio::supervisor.addons | grep grafana))
+  if [[ "$teslamate_ingress" == "$grafana_ingress" ]]; then
+    grafana_ingress="** Grafana addon not found. Ensure the addon is installed and running. **"
+  fi
 
   bashio::log.info "Configure TeslaMate settings by adding these values
                  to the URL you use to access your Home Assistant instance:
