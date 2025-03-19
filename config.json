@@ -9,6 +9,7 @@
         "aarch64",
         "amd64"
     ],
+    "hassio_api": true,
     "ingress": true,
     "init": false,
     "panel_icon": "mdi:car-connected",
