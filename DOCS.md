@@ -151,6 +151,70 @@ For example, if you access your Home Assistant instance at `https://ha.example.c
 
 Do _not_ use these values. Use the values from your log output.
 
+## Migrate TeslaMate to a Different PostreSQL Server
+
+In order to migrate TeslaMate to a different PostgreSQL server, you will need to make a backup of the original data and then restore it to the destination server.
+This isn't much of a challenge for the seasoned sysadmin familiar with Docker, PostgreSQL and the command line, however most Home Assistant users aren't expert sysadmins so this guide if for you.
+
+1. Ensure you have both the current and new PostgreSQL servers installed and running and ensure you have the same users and roles configured on both.
+
+2. Stop the TeslaMate add-on.
+
+3. Install the [pgAdmin4](https://github.com/expaso/hassos-addons) add-on.
+
+4. Start the pgAdmin4 add-on and open the web UI
+
+5. Make a new connection to the current PostgreSQL server by clicking "Add New Server".
+
+   1. Give it a recognisable name in the General tab.
+
+   2. Switch to the Connection tab and enter the hostname, port, username and password currently used.
+      You can find these in your TeslaMate add-on configuration.
+
+   3. Click Save
+
+6. Click the dropdown next to the new server -> Databases and then select the database you use for TeslaMate.
+   This will be the same name you configured in the TeslaMate add-on configuration.
+
+7. Go to Tools -> Backup, enter a filename, if you know what you're doing feel free to make other customisations but it's not essential, and then click Backup. [^1]
+
+8. Once the backup has finished, repeats step 5 for your new PostgreSQL server to establish a connection to your new PostgreSQL server.
+
+9. Select the new server, if not already selected, and go to Object -> Create -> Database and enter the same name and owner as used on your old server and click Save.
+
+10. If the database is not already selected, select it and then go to Tools -> Restore, enter the filename you entered in step 7 and click Restore.
+    You may need to use the file browser to locate the file. If you didn't change the path in step 7, the backup should be in `/root/`.
+
+11. Once the restore has completed, go to the TeslaMate add-on settings and update the database settings to point to your new database server.
+    The easiest approach is to use the steps in [Migrating to this version of the add-on](#migrating-to-this-version-of-the-add-on) further down in this file and change the `database_host` to the name of your new PostgreSQL server.
+
+12. Update the Grafana configuration by going to the Grafana add-on -> Open web UI -> Grafana logo in top left -> Connections -> Datasources, select the TeslaMate source and change the Host URL to your new PostgreSQL server and click "Save & test".
+
+13. Start the TeslaMate add-on and verifying everything is working as it was before. [^2]
+
+You can now uninstall the pgAdmin4 add-on if you want and stop and uninstall your old PostgreSQL server if you're not using it for anything else.
+
+## Import TeslaMate Backup
+
+If you have made a backup of a TeslaMate installation as per the TeslaMate documentation and now have a `teslamate.bak` file you want to use with this add-on, you can do so as follows:
+
+1. Install this TeslaMate add-on if you haven't already, but don't start it.
+
+2. Install a PostgreSQL server and start it if you haven't already.
+   We recommend the [PostgreSQL add-on][alexbelgium-postgres] from @alexbelgium's repository .
+
+3. Perform steps 3, 4 and 5 from [Migrate TeslaMate to a Different PostreSQL Server][migrate-psql] above.
+
+4. Transfer the `teslamate.bck` file to the `/share/teslamate` folder on your Home Assistant instance.
+   You can do this using the [Samba][samba-addon] or [SSH][ssh-addon] add-ons.
+
+5. Perform steps 9 and 10 from [Migrate TeslaMate to a Different PostreSQL Server][migrate-psql] above.
+   Note: the file location will be `/share/teslamate/teslamate.bck`.
+
+6. Configure TeslaMate and Grafana as per the details at the top of this file.
+
+7. Start TeslaMate.
+
 ## Data Import from TeslaFi
 
 It is now possible to import CSV data from TeslaFi, refer to the [official docs][teslafi-import].
@@ -172,8 +236,20 @@ Follow this process:
 [elixir]: https://elixir-lang.org/
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
 [grafana-datasource]: https://raw.githubusercontent.com/lildude/ha-addon-teslamate/main/imgs/grafana-postgres.png
+[migrate-psql]: #migrate-teslamate-to-a-different-postresql-server
 [mosquitto-docs]: https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md
+[pgadmin4]: https://github.com/expaso/hassos-addons
 [samba-addon]: https://github.com/home-assistant/addons/blob/master/samba/DOCS.md
 [ssh-addon]: https://github.com/home-assistant/addons/blob/master/ssh/DOCS.md
 [teslafi-import]: https://docs.teslamate.org/docs/import/teslafi
 [teslamate]: https://github.com/teslamate-org/teslamate/
+[teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore/#backup
+
+[^1]:
+    If the backup or restore fails due to a `server version mismatch` error, you will need to select the latest version of PostgreSQL in pgAdmin4 by going to File -> Paths -> Binary paths and add the correct path for each version.
+    For example, for PostgreSQL 14, enter `/usr/local/pgsql-14`, for PostgreSQL 15, enter `/usr/local/pgsql-15` etc.
+
+[^2]:
+    If you see the `ERROR:  type "earth" does not exist at character` error in the TeslaMate log, you can fix this by going back into pgAdmin4 and right click on the TeslaMate database -> "CREATE script".
+    Delete everything auto generated and paste in the [codeblock here](https://github.com/diogob/activerecord-postgres-earthdistance/issues/30#issuecomment-2122829036).
+    Click "Execute script" (It's the ▶️ symbol at the top).
