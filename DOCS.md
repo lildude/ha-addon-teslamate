@@ -130,7 +130,7 @@ Once you have Grafana up and running, you'll need to configure a data source to 
 ## TeslaMate Configuration
 
 In order for the links in the Grafana dashboards and the TeslaMate UI to link to the correct locations, you will also need to configure TeslaMate.
-Once you have started the addon, look at the log output for the section which looks like this and take note of the two lines with `=>`:
+Once you have started the add-on, look at the log output for the section which looks like this and take note of the two lines with `=>`:
 
 ```
 [09:26:32] INFO: Configure TeslaMate settings by adding these values
@@ -141,7 +141,7 @@ Once you have started the addon, look at the log output for the section which lo
 
 ```
 
-From the addon Info tab, click "Open Web UI", enter the Tesla API access and refresh tokens if you haven't already, and then go to TeslaMate's Settings.
+From the add-on Info tab, click "Open Web UI", enter the Tesla API access and refresh tokens if you haven't already, and then go to TeslaMate's Settings.
 Scroll to the very bottom and set each of the URLs to the URL you use to access your Home Assistant instance with each of the above appended.
 
 For example, if you access your Home Assistant instance at `https://ha.example.com`, set each as follows:
@@ -186,7 +186,7 @@ This isn't much of a challenge for the seasoned sysadmin familiar with Docker, P
     You may need to use the file browser to locate the file. If you didn't change the path in step 7, the backup should be in `/root/`.
 
 11. Once the restore has completed, go to the TeslaMate add-on settings and update the database settings to point to your new database server.
-    The easiest approach is to use the steps in [Migrating to this version of the add-on](#migrating-to-this-version-of-the-add-on) further down in this file and change the `database_host` to the name of your new PostgreSQL server.
+    The easiest approach is to use the steps in [Migrating to this version of the add-on][migrate-addon] further down in this file and change the `database_host` to the name of your new PostgreSQL server.
 
 12. Update the Grafana configuration by going to the Grafana add-on -> Open web UI -> Grafana logo in top left -> Connections -> Datasources, select the TeslaMate source and change the Host URL to your new PostgreSQL server and click "Save & test".
 
@@ -237,6 +237,7 @@ Follow this process:
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
 [grafana-datasource]: https://raw.githubusercontent.com/lildude/ha-addon-teslamate/main/imgs/grafana-postgres.png
 [migrate-psql]: #migrate-teslamate-to-a-different-postresql-server
+[migrate-addon]: https://github.com/lildude/ha-addon-teslamate/blob/main/README.md#migrating-to-this-version-of-the-add-on
 [mosquitto-docs]: https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md
 [pgadmin4]: https://github.com/expaso/hassos-addons
 [samba-addon]: https://github.com/home-assistant/addons/blob/master/samba/DOCS.md
