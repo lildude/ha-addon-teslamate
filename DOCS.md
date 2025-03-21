@@ -196,7 +196,7 @@ You can now uninstall the pgAdmin4 add-on if you want and stop and uninstall you
 
 ## Import TeslaMate Backup
 
-If you have made a backup of a TeslaMate installation as per the TeslaMate documentation and now have a `teslamate.bak` file you want to use with this add-on, you can do so as follows:
+If you have made a backup of a TeslaMate installation as per the [TeslaMate backup documentation][teslamate-backup] and now have a `teslamate.bak` file you want to use with this add-on, you can do so as follows:
 
 1. Install this TeslaMate add-on if you haven't already, but don't start it.
 
