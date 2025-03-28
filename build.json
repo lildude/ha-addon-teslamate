@@ -1,11 +1,11 @@
 {
   "build_from": {
-    "aarch64": "teslamate/teslamate:1.32.0",
-    "amd64": "teslamate/teslamate:1.32.0",
-    "armv7": "teslamate/teslamate:1.32.0"
+    "aarch64": "teslamate/teslamate:1.33.0",
+    "amd64": "teslamate/teslamate:1.33.0",
+    "armv7": "teslamate/teslamate:1.33.0"
   },
   "args": {
-    "teslamate_version": "1.32.0"
+    "teslamate_version": "1.33.0"
   },
   "codenotary": {
     "signer": "colin@symr.io"
