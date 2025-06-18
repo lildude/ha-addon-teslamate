@@ -52,11 +52,6 @@ for env_var in $(bashio::config 'env_vars|keys'); do
     export "${name}=${value}"
 done
 
-# Import dashboards
-if bashio::config.true 'grafana_import_dashboards'; then
-    /dashboards.sh restore || bashio::log.error "Failed to import dashboards"
-fi
-
 # Create the PostgreSQL database if it doesn't exist
 bashio::log.info "Checking for database '$DATABASE_NAME' on $DATABASE_HOST"
 if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
@@ -96,6 +91,11 @@ if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
 else
   bashio::log.error "PostgreSQL at '$DATABASE_HOST' is not ready or unreachable"
   exit 1
+fi
+
+# Import dashboards
+if bashio::config.true 'grafana_import_dashboards'; then
+    /dashboards.sh restore || bashio::log.error "Failed to import dashboards"
 fi
 
 if [[ -z $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" "$DATABASE_NAME" -Atqc "SELECT 1 FROM settings WHERE base_url LIKE '%api/hassio_ingress%'" 2> /dev/null ) ]]; then
