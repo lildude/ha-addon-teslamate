@@ -7,7 +7,7 @@ A self-hosted data logger for your Tesla 🚘
 [TeslaMate][teslamate] is a powerful, self-hosted data logger for your Tesla.
 
 - Written in **[Elixir][elixir]**
-- Data is stored in a **Postgres** database
+- Data is stored in a **PostgreSQL** database
 - Visualization and data analysis with **Grafana**
 - Vehicle data is published to a local **MQTT** Broker
 
@@ -108,7 +108,7 @@ Once you have Grafana up and running, you'll need to configure a data source to 
 
 ‼️ **Note**: The name must be `TeslaMate` as all the dashboards expect the datasource to use this name.
 
-![Grafana Postgres data source][grafana-datasource]
+![Grafana PostgreSQL data source][grafana-datasource]
 
 #### Other Options
 
@@ -151,7 +151,7 @@ For example, if you access your Home Assistant instance at `https://ha.example.c
 
 Do _not_ use these values. Use the values from your log output.
 
-## Migrate TeslaMate to a Different PostreSQL Server
+## Migrate TeslaMate to a Different PostgreSQL Server
 
 In order to migrate TeslaMate to a different PostgreSQL server, you will need to make a backup of the original data and then restore it to the destination server.
 This isn't much of a challenge for the seasoned sysadmin familiar with Docker, PostgreSQL and the command line, however most Home Assistant users aren't expert sysadmins so this guide if for you.
@@ -201,7 +201,7 @@ If you have made a backup of a TeslaMate installation as per the [TeslaMate back
 1. Install this TeslaMate add-on if you haven't already, but don't start it.
 
 2. Install a PostgreSQL server and start it if you haven't already.
-   We recommend the [PostgreSQL add-on][alexbelgium-postgres] from @alexbelgium's repository .
+   We recommend the [PostgreSQL 17 add-on][alexbelgium-postgres] from @alexbelgium's repository, or [TimescaleDB][timescaledb] (for advanced users).
 
 3. Perform steps 3, 4 and 5 from [Migrate TeslaMate to a Different PostreSQL Server][migrate-psql] above.
 
@@ -232,6 +232,7 @@ Follow this process:
 
 5. Once imported sucessfully, delete the CSV files to avoid the import screen being presented.
 
+[alexbelgium-postgres]: https://github.com/alexbelgium/hassio-addons/tree/master/postgres_17
 [docker]: https://hub.docker.com/r/teslamate/teslamate
 [elixir]: https://elixir-lang.org/
 [grafana-addon]: https://github.com/hassio-addons/addon-grafana
@@ -245,6 +246,7 @@ Follow this process:
 [teslafi-import]: https://docs.teslamate.org/docs/import/teslafi
 [teslamate]: https://github.com/teslamate-org/teslamate/
 [teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore/#backup
+[timescaledb]: https://github.com/expaso/hassos-addon-timescaledb
 
 [^1]:
     If the backup or restore fails due to a `server version mismatch` error, you will need to select the latest version of PostgreSQL in pgAdmin4 by going to File -> Paths -> Binary paths and add the correct path for each version.
