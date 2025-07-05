@@ -24,7 +24,7 @@ Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 
 ## Requirements
 
-TeslaMate v2 needs a PostgreSQL 16.7 or 17.3 or later database.
+**TeslaMate v2 needs a PostgreSQL 16.7 or 17.3 or later database.**
 I recommend using the [PostgreSQL 17 add-on][alexbelgium-postgres] from @alexbelgium's repository, or [TimescaleDB][timescaledb] (for advanced users), if you aren't already using PostgreSQL.
 
 To get the full experience, it is recommended that you also install the community [Grafana add-on][grafana-addon] and [MQTT integration][mqtt].
