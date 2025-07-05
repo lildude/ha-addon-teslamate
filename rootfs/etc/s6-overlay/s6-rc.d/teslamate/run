@@ -59,7 +59,7 @@ if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
   pg_version=$(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "SELECT regexp_replace(version(), 'PostgreSQL ([^ ]+) .*', '\\1') AS version")
   major_version=$(echo "$pg_version" | cut -d '.' -f 1)
   minor_version=$(echo "$pg_version" | cut -d '.' -f 2)
-  compat=false
+  compat=true
   case "$major_version" in
     16)
       [[ "$minor_version" -lt 7 ]] && compat=false
@@ -69,11 +69,10 @@ if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
       ;;
     *)
       [[ "$major_version" -lt 16 ]] && compat=false
-      [[ "$major_version" -gt 17 ]] && compat=true
       ;;
   esac
 
-  if [ $compat ]; then
+  if [ $compat = false ]; then
     bashio::log.error "PostgreSQL version $pg_version is not supported. Please upgrade to v16.7 or later or v17.3 or later."
     exit 1
   fi
