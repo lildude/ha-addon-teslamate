@@ -113,7 +113,11 @@ if [[ -z $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PO
   bashio::log.notice "=> Dashboards: $grafana_ingress"
   bashio::log.notice ""
 fi
-ulimit -n 1048576
+
+# Set max open file limit to avoid memory allocation issues
+if [ "$(ulimit -Hn)" -gt 524288 ]; then
+    ulimit -n 524288
+fi
 
 bashio::log.info "Starting TeslaMate..."
 
