@@ -77,7 +77,6 @@ custom_plugins:
   - name: panodata-map-panel
     url: https://github.com/panodata/panodata-map-panel/releases/download/0.16.0/panodata-map-panel-0.16.0.zip
     unsigned: true
-custom_plugins: []
 env_vars:
   - name: GF_SECURITY_ADMIN_USER
     value: <youruser>
