@@ -150,6 +150,8 @@ For example, if you access your Home Assistant instance at `https://ha.example.c
 
 Do _not_ use these values. Use the values from your log output.
 
+**Note:** If you do not see the links in your add-on logs, clear the values in the TeslaMate configuration and restart the add-on.
+
 ## Migrate TeslaMate to a Different PostgreSQL Server
 
 In order to migrate TeslaMate to a different PostgreSQL server, you will need to make a backup of the original data and then restore it to the destination server.
