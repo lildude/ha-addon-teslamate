@@ -5,7 +5,6 @@
   "description": "A self-hosted data logger for your Tesla.",
   "url": "https://github.com/lildude/ha-addon-teslamate",
   "arch": [
-    "armv7",
     "aarch64",
     "amd64"
   ],
