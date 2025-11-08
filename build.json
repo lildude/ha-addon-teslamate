@@ -1,14 +1,10 @@
 {
   "build_from": {
     "aarch64": "teslamate/teslamate:2.1.1",
-    "amd64": "teslamate/teslamate:2.1.1",
-    "armv7": "teslamate/teslamate:2.1.1"
+    "amd64": "teslamate/teslamate:2.1.1"
   },
   "args": {
     "teslamate_version": "2.1.1"
-  },
-  "codenotary": {
-    "signer": "colin@symr.io"
   },
   "labels":{
     "maintainer": "Colin Seymour (https://github.com/lildude)",
