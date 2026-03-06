@@ -61,7 +61,7 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout addon repo
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
         with:
           path: repo
           repository: lildude/ha-addons
