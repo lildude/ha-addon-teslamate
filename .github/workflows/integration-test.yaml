@@ -1,0 +1,43 @@
+name: Integration Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - build.json
+      - config.json
+      - Dockerfile
+      - rootfs/**
+      - .devcontainer/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - build.json
+      - config.json
+      - Dockerfile
+      - rootfs/**
+      - .devcontainer/**
+
+jobs:
+  integration:
+    name: Integration test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Run integration test in devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            printf '#!/bin/sh\nexit 0\n' | sudo tee /usr/sbin/apparmor_parser > /dev/null && sudo chmod +x /usr/sbin/apparmor_parser
+            sudo sed -i 's|docker run --rm --privileged|docker run --rm --privileged -v /usr/sbin/apparmor_parser:/usr/sbin/apparmor_parser:ro|' /usr/bin/supervisor_run
+            if [ -n "${DEBUG:-}" ]; then
+              supervisor_run &
+            else
+              supervisor_run > /dev/null 2>&1 &
+            fi
+            bash .devcontainer/setup-ha.sh
