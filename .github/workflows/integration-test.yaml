@@ -36,11 +36,24 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             GITHUB_ACTIONS=true
           runCmd: |
-            echo "::group::Start Supervisor"
+            echo "::group::Build add-on locally" >&2
+            # The committed config.json carries an "image" key (required by the
+            # release/publish pipeline) plus "version": "dev". Left in place, the
+            # Supervisor pulls ghcr.io/...-{arch}:dev - a tag that is never
+            # published - and the integration test fails. Strip the key BEFORE
+            # starting Supervisor so its first store scan builds from the local
+            # Dockerfile; stripping later is unreliable because /store/reload
+            # does not re-read an already-scanned local add-on's image field.
+            if jq -e 'has("image")' config.json >/dev/null 2>&1; then
+              jq 'del(.image)' config.json > config.json.tmp && mv config.json.tmp config.json
+              echo "Removed 'image' key from config.json - add-on will build locally" >&2
+            fi
+            echo "::endgroup::" >&2
+            echo "::group::Start Supervisor" >&2
             if [ -n "${DEBUG:-}" ]; then
               SUPERVISOR_UNCONFINED=1 supervisor_run &
             else
               SUPERVISOR_UNCONFINED=1 supervisor_run > /dev/null 2>&1 &
             fi
-            echo "::endgroup::"
+            echo "::endgroup::" >&2
             bash .devcontainer/setup-ha.sh
