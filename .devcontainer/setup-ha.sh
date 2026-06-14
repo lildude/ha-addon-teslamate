@@ -18,15 +18,6 @@
 
 set -euo pipefail
 
-# DEBUG: when set to a truthy value (1/true/yes/on), print verbose diagnostics
-# and surface API responses/errors that are normally hidden. Unset (or 0/false)
-# keeps the default, quiet output.
-DEBUG="${DEBUG:-0}"
-case "${DEBUG,,}" in
-  1 | true | yes | on) DEBUG=1 ;;
-  *) DEBUG=0 ;;
-esac
-
 HA_URL="http://localhost:8123"
 ALEXBELGIUM_REPO="https://github.com/alexbelgium/hassio-addons"
 ADMIN_USER="admin"
@@ -65,16 +56,15 @@ log()  { echo -e "${CYAN}==>${NC} ${BOLD}$*${NC}"; }
 warn() { echo -e "${YELLOW}WARNING:${NC} $*" >&2; }
 err()  { group_end; echo -e "${RED}ERROR:${NC} $*" >&2; exit 1; }
 ok()   { echo -e "${CYAN}==>${NC} ${GREEN}$*${NC}"; }
-# debug() prints only when DEBUG is enabled and writes to stderr, so it never
-# pollutes function output captured via $(...).
+
 debug() {
-  [ "$DEBUG" = "1" ] || return 0
+  [ -n "$DEBUG" ] || return 0
   echo -e "${DIM}DEBUG:${NC} $*" >&2
 }
-# debug_response() logs an API response when debugging, truncated so large
-# payloads (e.g. addon logs) stay readable.
+
+
 debug_response() {
-  [ "$DEBUG" = "1" ] || return 0
+  [ -n "$DEBUG" ] || return 0
   local resp="$1" max=800
   if [ "${#resp}" -gt "$max" ]; then
     debug "response (truncated): ${resp:0:$max}..."
@@ -89,7 +79,7 @@ debug_response() {
 # unchanged. Markers go to stderr to stay ordered with debug() and err() output.
 _group_open=0
 group_start() {
-  [ "$DEBUG" = "1" ] && [ "${GITHUB_ACTIONS:-}" = "true" ] || return 0
+  [ -n "$DEBUG" ] && [ "${GITHUB_ACTIONS:-}" = "true" ] || return 0
   echo "::group::$*" >&2
   _group_open=1
 }
@@ -129,6 +119,26 @@ supervisor_api_with_body() {
   resp=$(docker exec -e "BODY=${body}" hassio_cli sh -c \
     'curl -s -X '"${method}"' -H "Authorization: Bearer $SUPERVISOR_TOKEN" -H "Content-Type: application/json" -d "$BODY" http://supervisor'"${endpoint}")
   debug_response "$resp"
+  printf '%s\n' "$resp"
+}
+
+# supervisor_api_post() performs a state-changing POST (optionally with a JSON
+# body) and aborts via err() if the Supervisor returns {"result":"error",...}.
+# These endpoints (install/start/options/reload) are synchronous, so without
+# this check a failure is silently swallowed and the script then polls for a
+# state that will never arrive. The response is emitted on stdout on success.
+supervisor_api_post() {
+  local endpoint="$1" body="${2:-}"
+  local resp result
+  if [ -n "$body" ]; then
+    resp=$(supervisor_api_with_body POST "$endpoint" "$body")
+  else
+    resp=$(supervisor_api POST "$endpoint")
+  fi
+  result=$(printf '%s' "$resp" | jq -r '.result // empty' 2>/dev/null)
+  if [ "$result" = "error" ]; then
+    err "Supervisor API error on POST ${endpoint}: $(printf '%s' "$resp" | jq -r '.message // .' 2>/dev/null)"
+  fi
   printf '%s\n' "$resp"
 }
 
@@ -261,7 +271,7 @@ add_addon_repo() {
   fi
 
   log "Adding addon repository: ${ALEXBELGIUM_REPO}"
-  supervisor_api_with_body POST "/store/repositories" \
+  supervisor_api_post "/store/repositories" \
     "{\"repository\":\"${ALEXBELGIUM_REPO}\"}" > /dev/null
 
   # Wait for the store to refresh by checking if the postgres addon is available
@@ -297,7 +307,7 @@ install_postgres() {
   fi
 
   log "Installing PostgreSQL addon..."
-  supervisor_api POST "/addons/${postgres_slug}/install" > /dev/null
+  supervisor_api_post "/addons/${postgres_slug}/install" > /dev/null
 
   # Wait for installation to complete
   log "Waiting for PostgreSQL installation..."
@@ -328,7 +338,7 @@ configure_and_start_postgres() {
     --arg db "$POSTGRES_DB" \
     '{options: {POSTGRES_PASSWORD: $pw, POSTGRES_DB: $db, env_vars: []}}')
 
-  supervisor_api_with_body POST "/addons/${postgres_slug}/options" \
+  supervisor_api_post "/addons/${postgres_slug}/options" \
     "${options_json}" > /dev/null
 
   # Check if already running
@@ -341,7 +351,7 @@ configure_and_start_postgres() {
   fi
 
   log "Starting PostgreSQL addon..."
-  supervisor_api POST "/addons/${postgres_slug}/start" > /dev/null
+  supervisor_api_post "/addons/${postgres_slug}/start" > /dev/null
 
   # Wait for postgres to be ready
   log "Waiting for PostgreSQL to be ready..."
@@ -382,9 +392,27 @@ remove_addon_image() {
   jq 'del(.image)' "$CONFIG_JSON" > "${CONFIG_JSON}.tmp" && mv "${CONFIG_JSON}.tmp" "$CONFIG_JSON"
   ok "Removed 'image' key from config.json"
 
-  # Reload the store so the Supervisor re-reads the local addon config
+  # Reload the store so the Supervisor re-reads the local addon config, then
+  # confirm the store entry actually has no image before installing. The reload
+  # is eventually-consistent: if we install while the store still has the
+  # prebuilt image set, the Supervisor tries to PULL ghcr.io/...-{arch}:dev
+  # (which is never published) and fails with addon_unknown_error.
   log "Reloading addon store..."
-  supervisor_api POST "/store/reload" > /dev/null
+  supervisor_api_post "/store/reload" > /dev/null
+
+  log "Verifying TeslaMate will build locally..."
+  local attempt=0 image
+  while [ "$attempt" -lt 12 ]; do
+    image=$(supervisor_api_jq "/store/addons/${TESLAMATE_SLUG}" '.data.image // empty')
+    if [ -z "$image" ]; then
+      ok "TeslaMate store entry has no image - will build from Dockerfile"
+      return 0
+    fi
+    debug "Attempt $((attempt + 1))/12: store still reports image=${image}"
+    sleep 5
+    attempt=$((attempt + 1))
+  done
+  err "Store still reports a prebuilt image for TeslaMate after reload; aborting to avoid pulling a non-existent image"
 }
 
 install_teslamate() {
@@ -400,7 +428,7 @@ install_teslamate() {
   fi
 
   log "Installing TeslaMate addon..."
-  supervisor_api POST "/addons/${TESLAMATE_SLUG}/install" > /dev/null
+  supervisor_api_post "/addons/${TESLAMATE_SLUG}/install" > /dev/null
 
   # Wait for installation to complete (the TeslaMate image is large)
   log "Waiting for TeslaMate installation..."
@@ -443,11 +471,7 @@ configure_and_start_teslamate() {
   options_json=$(jq -n --argjson cur "$current_options" --argjson ovr "$overrides" '{options: ($cur + $ovr)}')
   debug "options payload: ${options_json}"
 
-  local response
-  response=$(supervisor_api_with_body POST "/addons/${TESLAMATE_SLUG}/options" "${options_json}")
-  if [ "$(echo "$response" | jq -r '.result')" != "ok" ]; then
-    err "Failed to set TeslaMate options: $(echo "$response" | jq -r '.message // .')"
-  fi
+  supervisor_api_post "/addons/${TESLAMATE_SLUG}/options" "${options_json}" > /dev/null
 
   # Check if already running
   local state
@@ -460,7 +484,7 @@ configure_and_start_teslamate() {
   fi
 
   log "Starting TeslaMate addon..."
-  supervisor_api POST "/addons/${TESLAMATE_SLUG}/start" > /dev/null
+  supervisor_api_post "/addons/${TESLAMATE_SLUG}/start" > /dev/null
 
   # Wait for addon state to become "started"
   log "Waiting for TeslaMate addon to start..."
