@@ -36,10 +36,21 @@ TESLAMATE_SLUG="local_teslamate"
 TESLAMATE_PORT=4000
 TIMEZONE="Europe/London"
 
-# Path to the addon's config.json (one level up from this script's directory),
-# resolved independently of the current working directory.
+# Path to the addon's config.json. Home Assistant mounts the local add-on store
+# at /mnt/supervisor/addons/local on older Supervisor versions and at
+# /mnt/supervisor/apps/local on newer ones. Derive the addon's directory name
+# from the script's own location (so it is correct regardless of where the
+# script is invoked from), then anchor ADDON_DIR to whichever canonical
+# Supervisor path actually exists - that is the config.json the Supervisor reads.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ADDON_DIR="$(dirname "$SCRIPT_DIR")"
+ADDON_NAME="$(basename "$ADDON_DIR")"
+for _local_base in /mnt/supervisor/addons/local /mnt/supervisor/apps/local; do
+  if [ -d "${_local_base}/${ADDON_NAME}" ]; then
+    ADDON_DIR="${_local_base}/${ADDON_NAME}"
+    break
+  fi
+done
 CONFIG_JSON="${ADDON_DIR}/config.json"
 
 # --- Helpers ---
