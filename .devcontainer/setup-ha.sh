@@ -144,8 +144,12 @@ wait_for_ha() {
   log "Waiting for Home Assistant to be ready..."
   local max_attempts=60
   local attempt=0
+  local http_code
   while [ "$attempt" -lt "$max_attempts" ]; do
-    if curl -sf "${HA_URL}/api/onboarding" > /dev/null 2>&1; then
+    # 200 = onboarding pending, 404 = already onboarded; both mean HA's HTTP
+    # server is up and serving. A connection failure yields 000.
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "${HA_URL}/api/onboarding" 2>/dev/null || true)
+    if [ "$http_code" = "200" ] || [ "$http_code" = "404" ]; then
       ok "Home Assistant is ready"
       return 0
     fi
@@ -160,8 +164,18 @@ wait_for_ha() {
 
 complete_onboarding() {
   log "Checking onboarding status..."
-  local onboarding
-  onboarding=$(curl -sf "${HA_URL}/api/onboarding")
+  # Capture the body and HTTP status separately. A configured instance returns
+  # 404 here because the onboarding endpoints are removed once onboarding
+  # completes, so don't use curl -f (which would abort under set -e).
+  local onboarding http_code
+  onboarding=$(curl -s -w $'\n%{http_code}' "${HA_URL}/api/onboarding")
+  http_code=$(printf '%s' "$onboarding" | tail -n1)
+  onboarding=$(printf '%s' "$onboarding" | sed '$d')
+
+  if [ "$http_code" = "404" ]; then
+    ok "Onboarding already completed (endpoint returned 404)"
+    return 0
+  fi
 
   local user_done
   user_done=$(echo "$onboarding" | jq -r '.[] | select(.step == "user") | .done')
