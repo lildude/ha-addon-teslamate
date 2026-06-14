@@ -1,10 +1,10 @@
 {
   "build_from": {
-    "aarch64": "teslamate/teslamate:3.0.0",
-    "amd64": "teslamate/teslamate:3.0.0"
+    "aarch64": "teslamate/teslamate:4.0.1",
+    "amd64": "teslamate/teslamate:4.0.1"
   },
   "args": {
-    "teslamate_version": "3.0.0"
+    "teslamate_version": "4.0.1"
   },
   "labels":{
     "maintainer": "Colin Seymour (https://github.com/lildude)",
