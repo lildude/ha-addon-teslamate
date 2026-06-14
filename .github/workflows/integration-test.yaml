@@ -32,6 +32,9 @@ jobs:
       - name: Run integration test in devcontainer
         uses: devcontainers/ci@v0.3
         with:
+          env: |
+            DEBUG=${{ vars.DEBUG }}
+            GITHUB_ACTIONS=true
           runCmd: |
             echo "::group::Start Supervisor"
             if [ -n "${DEBUG:-}" ]; then
@@ -40,4 +43,4 @@ jobs:
               SUPERVISOR_UNCONFINED=1 supervisor_run > /dev/null 2>&1 &
             fi
             echo "::endgroup::"
-            DEBUG=1 bash .devcontainer/setup-ha.sh
+            bash .devcontainer/setup-ha.sh
