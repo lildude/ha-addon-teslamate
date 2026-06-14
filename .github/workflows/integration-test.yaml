@@ -5,7 +5,6 @@ on:
     branches:
       - main
     paths:
-      - build.json
       - config.json
       - Dockerfile
       - rootfs/**
@@ -14,7 +13,6 @@ on:
     branches:
       - main
     paths:
-      - build.json
       - config.json
       - Dockerfile
       - rootfs/**

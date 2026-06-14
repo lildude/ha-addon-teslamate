@@ -1,11 +1,9 @@
-ARG BUILD_FROM
-ARG teslamate_version
-FROM teslamate/grafana:${teslamate_version} as grafana
+ARG teslamate_version=3.0.0
+FROM teslamate/grafana:${teslamate_version} AS grafana
 
 #---
 
-ARG BUILD_FROM
-FROM $BUILD_FROM
+FROM teslamate/teslamate:${teslamate_version}
 
 ARG BUILD_ARCH
 ARG BASHIO_VERSION=0.16.2
@@ -48,6 +46,15 @@ RUN \
 COPY rootfs /
 COPY --from=grafana /dashboards /dashboards
 COPY --from=grafana /dashboards_internal /dashboards
+
+LABEL \
+    maintainer="Colin Seymour (https://github.com/lildude)" \
+    org.opencontainers.image.authors="Colin Seymour (https://github.com/lildude)" \
+    org.opencontainers.image.description="A self-hosted data logger for your Tesla." \
+    org.opencontainers.image.documentation="https://github.com/lildude/ha-addon-teslamate/blob/main/DOCS.md" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.source="https://github.com/lildude/ha-addon-teslamate/" \
+    org.opencontainers.image.title="Home Assistant Add-on: TeslaMate"
 
 # S6-Overlay
 ENTRYPOINT ["/init"]

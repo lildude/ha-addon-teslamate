@@ -18,7 +18,6 @@ Thanks to @matt-FFFFFF for maintaining this add-on in the past.
 
 [![Sponsor me to maintain this add-on][sponsor-badge]](https://github.com/sponsors/lildude)
 
-![TeslaMate Version][teslamate-version]
 ![Ingress][ingres-badge]
 ![Supported Architectures][archs]
 
@@ -85,6 +84,5 @@ Everything should pick up where it was before.
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 [sponsor-badge]: https://img.shields.io/badge/Sponsor_Me-%E2%9D%A4-ec6cb9?logo=GitHub
 [teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore
-[teslamate-version]: https://img.shields.io/badge/dynamic/json?label=TeslaMate%20Version&url=https%3A%2F%2Fraw.githubusercontent.com%2Flildude%2Fha-addon-teslamate%2Fmain%2Fbuild.json&query=%24.args.teslamate_version
 [teslamate]: https://github.com/teslamate-org/teslamate/
 [timescaledb]: https://github.com/expaso/hassos-addon-timescaledb
