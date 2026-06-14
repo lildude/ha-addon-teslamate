@@ -5,9 +5,6 @@ on:
     branches:
       - main
     paths:
-      - build.yaml
-      - config.yaml
-      - build.json
       - config.json
       - Dockerfile
       - rootfs/**
@@ -15,34 +12,71 @@ on:
     branches:
       - main
     paths:
-      - build.yaml
-      - config.yaml
-      - build.json
       - config.json
       - Dockerfile
       - rootfs/**
 
 jobs:
-  build:
+  init:
+    name: Initialize build
     runs-on: ubuntu-latest
-    name: Build add-on
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.3
+
+      - name: Build matrix
+        id: matrix
+        run: |
+          # Derive the per-arch build matrix from config.json. amd64 and aarch64
+          # build on native runners (no QEMU). Base image, build args and labels
+          # all live in the Dockerfile, so nothing extra is needed here.
+          image_template=$(jq -r '.image' config.json)
+          architectures=$(jq -r '.arch[]' config.json)
+          matrix='{"include":[]}'
+          for arch in $architectures; do
+            case "${arch}" in
+              amd64) os="ubuntu-24.04" ;;
+              aarch64) os="ubuntu-24.04-arm" ;;
+              *) echo "::error::Unsupported architecture: ${arch}"; exit 1 ;;
+            esac
+            image="${image_template//\{arch\}/${arch}}"
+            matrix=$(jq -c \
+              --arg arch "$arch" \
+              --arg os "$os" \
+              --arg image "$image" \
+              '.include += [{arch: $arch, os: $os, image: $image}]' <<< "${matrix}")
+          done
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.arch }} add-on
+    needs: init
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
-      matrix:
-        arch: ["amd64", "aarch64"]
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v6.0.3
 
       - name: Build add-on
-        uses: home-assistant/builder@2026.03.2
+        uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
-          args: |
-            --test \
-            --${{ matrix.arch }} \
-            --target /data/ \
-            --addon
+          arch: ${{ matrix.arch }}
+          image: ${{ matrix.image }}
+          image-tags: test
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          load: "true"
+          cosign: "false"
+          version: test
 
       - name: Image labels
         run: |
-          docker inspect ghcr.io/lildude/ha-addon-teslamate-${{ matrix.arch }} --format='{{json .Config.Labels}}' | jq
+          docker inspect ${{ matrix.image }}:test --format='{{json .Config.Labels}}' | jq
