@@ -12,10 +12,20 @@
 # broker / Grafana instance is available.
 #
 # Usage: bash .devcontainer/setup-ha.sh
+#        DEBUG=1 bash .devcontainer/setup-ha.sh   # verbose output + error details
 #
 # Safe to run multiple times (idempotent).
 
 set -euo pipefail
+
+# DEBUG: when set to a truthy value (1/true/yes/on), print verbose diagnostics
+# and surface API responses/errors that are normally hidden. Unset (or 0/false)
+# keeps the default, quiet output.
+DEBUG="${DEBUG:-0}"
+case "${DEBUG,,}" in
+  1 | true | yes | on) DEBUG=1 ;;
+  *) DEBUG=0 ;;
+esac
 
 HA_URL="http://localhost:8123"
 ALEXBELGIUM_REPO="https://github.com/alexbelgium/hassio-addons"
@@ -47,6 +57,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
+DIM='\033[2m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
@@ -54,20 +65,62 @@ log()  { echo -e "${CYAN}==>${NC} ${BOLD}$*${NC}"; }
 warn() { echo -e "${YELLOW}WARNING:${NC} $*" >&2; }
 err()  { echo -e "${RED}ERROR:${NC} $*" >&2; exit 1; }
 ok()   { echo -e "${CYAN}==>${NC} ${GREEN}$*${NC}"; }
+# debug() prints only when DEBUG is enabled and writes to stderr, so it never
+# pollutes function output captured via $(...).
+debug() {
+  [ "$DEBUG" = "1" ] || return 0
+  echo -e "${DIM}DEBUG:${NC} $*" >&2
+}
+# debug_response() logs an API response when debugging, truncated so large
+# payloads (e.g. addon logs) stay readable.
+debug_response() {
+  [ "$DEBUG" = "1" ] || return 0
+  local resp="$1" max=800
+  if [ "${#resp}" -gt "$max" ]; then
+    debug "response (truncated): ${resp:0:$max}..."
+  else
+    debug "response: ${resp}"
+  fi
+}
 
 # Run Supervisor API call via hassio_cli container
 # IMPORTANT: Use single quotes for outer sh -c argument so $SUPERVISOR_TOKEN
 # is expanded by the inner shell (where the env var exists), not the outer bash.
 supervisor_api() {
   local method="$1" endpoint="$2"
-  docker exec hassio_cli sh -c \
-    'curl -s -X '"${method}"' -H "Authorization: Bearer $SUPERVISOR_TOKEN" -H "Content-Type: application/json" http://supervisor'"${endpoint}"
+  debug "API ${method} ${endpoint}"
+  local resp
+  resp=$(docker exec hassio_cli sh -c \
+    'curl -s -X '"${method}"' -H "Authorization: Bearer $SUPERVISOR_TOKEN" -H "Content-Type: application/json" http://supervisor'"${endpoint}")
+  debug_response "$resp"
+  printf '%s\n' "$resp"
 }
 
 supervisor_api_with_body() {
   local method="$1" endpoint="$2" body="$3"
-  docker exec -e "BODY=${body}" hassio_cli sh -c \
-    'curl -s -X '"${method}"' -H "Authorization: Bearer $SUPERVISOR_TOKEN" -H "Content-Type: application/json" -d "$BODY" http://supervisor'"${endpoint}"
+  debug "API ${method} ${endpoint} body=${body}"
+  local resp
+  resp=$(docker exec -e "BODY=${body}" hassio_cli sh -c \
+    'curl -s -X '"${method}"' -H "Authorization: Bearer $SUPERVISOR_TOKEN" -H "Content-Type: application/json" -d "$BODY" http://supervisor'"${endpoint}")
+  debug_response "$resp"
+  printf '%s\n' "$resp"
+}
+
+# POST to the local HA API for an optional onboarding step. Failures are
+# non-fatal; the request and any response/error are shown only when debugging.
+ha_post_optional() {
+  local token="$1" endpoint="$2" data="$3"
+  debug "POST ${endpoint} ${data}"
+  local resp rc=0
+  resp=$(curl -sS -X POST "${HA_URL}${endpoint}" \
+    -H "Authorization: Bearer ${token}" \
+    -H "Content-Type: application/json" \
+    -d "$data" 2>&1) || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    debug "${endpoint} failed (rc=${rc}): ${resp}"
+  elif [ -n "$resp" ]; then
+    debug "${endpoint} response: ${resp}"
+  fi
 }
 
 # Query a specific jq field from a Supervisor API response
@@ -96,6 +149,7 @@ wait_for_ha() {
       ok "Home Assistant is ready"
       return 0
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: Home Assistant not ready yet"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -122,6 +176,7 @@ complete_onboarding() {
   auth_response=$(curl -sf -X POST "${HA_URL}/api/onboarding/users" \
     -H "Content-Type: application/json" \
     -d "{\"client_id\":\"${CLIENT_ID}\",\"name\":\"Admin\",\"username\":\"${ADMIN_USER}\",\"password\":\"${ADMIN_PASS}\",\"language\":\"en\"}")
+  debug "users response: ${auth_response}"
 
   local auth_code
   auth_code=$(echo "$auth_response" | jq -r '.auth_code')
@@ -136,6 +191,7 @@ complete_onboarding() {
     --data-urlencode "grant_type=authorization_code" \
     --data-urlencode "code=${auth_code}" \
     --data-urlencode "client_id=${CLIENT_ID}")
+  debug "token response: ${token_response}"
 
   local access_token
   access_token=$(echo "$token_response" | jq -r '.access_token')
@@ -144,22 +200,12 @@ complete_onboarding() {
     err "Failed to get access token: ${token_response}"
   fi
 
-  # Complete remaining onboarding steps
+  # Complete remaining onboarding steps (best-effort; failures are non-fatal)
   log "Completing onboarding steps..."
-  curl -sf -X POST "${HA_URL}/api/onboarding/core_config" \
-    -H "Authorization: Bearer ${access_token}" \
-    -H "Content-Type: application/json" \
-    -d "{}" > /dev/null 2>&1 || true
-
-  curl -sf -X POST "${HA_URL}/api/onboarding/analytics" \
-    -H "Authorization: Bearer ${access_token}" \
-    -H "Content-Type: application/json" \
-    -d "{}" > /dev/null 2>&1 || true
-
-  curl -sf -X POST "${HA_URL}/api/onboarding/integration" \
-    -H "Authorization: Bearer ${access_token}" \
-    -H "Content-Type: application/json" \
-    -d "{\"client_id\":\"${CLIENT_ID}\",\"redirect_uri\":\"${HA_URL}/\"}" > /dev/null 2>&1 || true
+  ha_post_optional "$access_token" "/api/onboarding/core_config" "{}"
+  ha_post_optional "$access_token" "/api/onboarding/analytics" "{}"
+  ha_post_optional "$access_token" "/api/onboarding/integration" \
+    "{\"client_id\":\"${CLIENT_ID}\",\"redirect_uri\":\"${HA_URL}/\"}"
 
   ok "Onboarding complete"
 }
@@ -187,6 +233,7 @@ add_addon_repo() {
       ok "Store refreshed successfully"
       return 0
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: postgres addon not in store yet"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -222,6 +269,7 @@ install_postgres() {
       ok "PostgreSQL addon installed (version: ${version})"
       return 0
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: PostgreSQL not installed yet"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -267,6 +315,7 @@ configure_and_start_postgres() {
       sleep 10
       return 0
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: PostgreSQL state=${state}"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -323,6 +372,7 @@ install_teslamate() {
       ok "TeslaMate addon installed (version: ${version})"
       return 0
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: TeslaMate not installed yet"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -351,6 +401,7 @@ configure_and_start_teslamate() {
     --arg tz "$TIMEZONE" \
     '{database_user: $user, database_pass: $pass, database_port: $port, database_host: $host, database_name: $db, database_ssl: false, disable_mqtt: true, grafana_import_dashboards: false, timezone: $tz}')
   options_json=$(jq -n --argjson cur "$current_options" --argjson ovr "$overrides" '{options: ($cur + $ovr)}')
+  debug "options payload: ${options_json}"
 
   local response
   response=$(supervisor_api_with_body POST "/addons/${TESLAMATE_SLUG}/options" "${options_json}")
@@ -380,6 +431,7 @@ configure_and_start_teslamate() {
     if [ "$state" = "started" ]; then
       break
     fi
+    debug "Attempt $((attempt + 1))/${max_attempts}: TeslaMate state=${state}"
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -402,6 +454,9 @@ wait_for_teslamate_ready() {
       ok "TeslaMate is ready"
       return 0
     fi
+    if [ "$DEBUG" = "1" ]; then
+      debug "Attempt $((attempt + 1))/${max_attempts}: endpoint not up yet; last log: $(echo "$logs" | tail -n 1)"
+    fi
     sleep 5
     attempt=$((attempt + 1))
   done
@@ -413,6 +468,9 @@ wait_for_teslamate_ready() {
 main() {
   log "Setting up Home Assistant for TeslaMate development"
   echo ""
+
+  debug "Verbose debug output enabled"
+  debug "HA_URL=${HA_URL} POSTGRES_SLUG=${POSTGRES_SLUG} TESLAMATE_SLUG=${TESLAMATE_SLUG}"
 
   wait_for_ha
   complete_onboarding
