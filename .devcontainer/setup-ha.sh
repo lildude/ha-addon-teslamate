@@ -281,7 +281,8 @@ remove_addon_image() {
   log "Ensuring TeslaMate addon builds locally..."
 
   if [ ! -f "$CONFIG_JSON" ]; then
-    err "config.json not found at ${CONFIG_JSON}"
+    warn "config.json not found at ${CONFIG_JSON} - skipping image removal"
+    return 0
   fi
 
   if ! jq -e 'has("image")' "$CONFIG_JSON" > /dev/null 2>&1; then
