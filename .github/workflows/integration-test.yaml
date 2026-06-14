@@ -33,9 +33,11 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           runCmd: |
+            echo "::group::Start Supervisor"
             if [ -n "${DEBUG:-}" ]; then
               SUPERVISOR_UNCONFINED=1 supervisor_run &
             else
               SUPERVISOR_UNCONFINED=1 supervisor_run > /dev/null 2>&1 &
             fi
-            bash .devcontainer/setup-ha.sh
+            echo "::endgroup::"
+            DEBUG=1 bash .devcontainer/setup-ha.sh
