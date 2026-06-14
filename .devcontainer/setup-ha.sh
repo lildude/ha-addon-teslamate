@@ -63,7 +63,7 @@ NC='\033[0m' # No Color
 
 log()  { echo -e "${CYAN}==>${NC} ${BOLD}$*${NC}"; }
 warn() { echo -e "${YELLOW}WARNING:${NC} $*" >&2; }
-err()  { echo -e "${RED}ERROR:${NC} $*" >&2; exit 1; }
+err()  { group_end; echo -e "${RED}ERROR:${NC} $*" >&2; exit 1; }
 ok()   { echo -e "${CYAN}==>${NC} ${GREEN}$*${NC}"; }
 # debug() prints only when DEBUG is enabled and writes to stderr, so it never
 # pollutes function output captured via $(...).
@@ -81,6 +81,32 @@ debug_response() {
   else
     debug "response: ${resp}"
   fi
+}
+
+# group_start()/group_end() wrap verbose output in GitHub Actions log groups so
+# it is folded by default. They are no-ops unless DEBUG is enabled and the
+# script is running inside GitHub Actions, so local and non-debug runs are
+# unchanged. Markers go to stderr to stay ordered with debug() and err() output.
+_group_open=0
+group_start() {
+  [ "$DEBUG" = "1" ] && [ "${GITHUB_ACTIONS:-}" = "true" ] || return 0
+  echo "::group::$*" >&2
+  _group_open=1
+}
+group_end() {
+  [ "$_group_open" = "1" ] || return 0
+  echo "::endgroup::" >&2
+  _group_open=0
+}
+
+# run_step() runs a setup step, wrapping its output in a titled GitHub Actions
+# log group (when enabled) so the verbose output folds under that heading.
+run_step() {
+  local title="$1"
+  shift
+  group_start "$title"
+  "$@"
+  group_end
 }
 
 # Run Supervisor API call via hassio_cli container
@@ -486,15 +512,15 @@ main() {
   debug "Verbose debug output enabled"
   debug "HA_URL=${HA_URL} POSTGRES_SLUG=${POSTGRES_SLUG} TESLAMATE_SLUG=${TESLAMATE_SLUG}"
 
-  wait_for_ha
-  complete_onboarding
-  add_addon_repo
+  run_step "Wait for Home Assistant" wait_for_ha
+  run_step "Complete onboarding" complete_onboarding
+  run_step "Add addon repository" add_addon_repo
 
-  install_postgres "$POSTGRES_SLUG"
-  configure_and_start_postgres "$POSTGRES_SLUG"
-  remove_addon_image
-  install_teslamate
-  configure_and_start_teslamate "$POSTGRES_SLUG"
+  run_step "Install PostgreSQL" install_postgres "$POSTGRES_SLUG"
+  run_step "Configure and start PostgreSQL" configure_and_start_postgres "$POSTGRES_SLUG"
+  run_step "Prepare TeslaMate local build" remove_addon_image
+  run_step "Install TeslaMate" install_teslamate
+  run_step "Configure and start TeslaMate" configure_and_start_teslamate "$POSTGRES_SLUG"
 
   echo ""
   ok "Setup complete!"
