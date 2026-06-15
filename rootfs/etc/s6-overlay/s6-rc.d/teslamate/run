@@ -52,44 +52,58 @@ for env_var in $(bashio::config 'env_vars|keys'); do
     export "${name}=${value}"
 done
 
-# Create the PostgreSQL database if it doesn't exist
-bashio::log.info "Checking for database '$DATABASE_NAME' on $DATABASE_HOST"
-if pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; then
-  # Check the version of PostgreSQL database is v16.7 or later or v17.3 or later
-  pg_version=$(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "SELECT regexp_replace(version(), 'PostgreSQL ([^ ]+) .*', '\\1') AS version")
-  major_version=$(echo "$pg_version" | cut -d '.' -f 1)
-  minor_version=$(echo "$pg_version" | cut -d '.' -f 2)
-  compat=true
-  case "$major_version" in
-    16)
-      [[ "$minor_version" -lt 7 ]] && compat=false
-      ;;
-    17)
-      [[ "$minor_version" -lt 3 ]] && compat=false
-      ;;
-    *)
-      [[ "$major_version" -lt 16 ]] && compat=false
-      ;;
-  esac
-
-  if [ $compat = false ]; then
-    bashio::log.error "PostgreSQL version $pg_version is not supported. Please upgrade to v16.7 or later or v17.3 or later."
+# Wait for PostgreSQL to be ready before continuing. The add-on can start
+# before the database is accepting connections (e.g. on a Home Assistant reboot
+# when both add-ons start together, or under load in CI), so retry instead of
+# failing immediately - TeslaMate has no built-in retry for this pre-check and
+# the s6 finish script would otherwise halt the whole add-on.
+bashio::log.info "Waiting for PostgreSQL at '$DATABASE_HOST:$DATABASE_PORT'..."
+pg_wait_attempt=0
+pg_wait_max=30
+until pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; do
+  pg_wait_attempt=$((pg_wait_attempt + 1))
+  if [[ "$pg_wait_attempt" -ge "$pg_wait_max" ]]; then
+    bashio::log.error "PostgreSQL at '$DATABASE_HOST' is not ready or unreachable after $((pg_wait_max * 2))s"
     exit 1
   fi
+  bashio::log.info "PostgreSQL not ready yet, retrying in 2s (${pg_wait_attempt}/${pg_wait_max})..."
+  sleep 2
+done
+bashio::log.info "PostgreSQL is ready"
 
-  if [[ -n $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "SELECT datname FROM pg_database WHERE datname = '$DATABASE_NAME'") ]]; then
-    bashio::log.info "Database $DATABASE_NAME already exists"
-  else
-    if PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -qc "CREATE DATABASE \"$DATABASE_NAME\""; then
-      bashio::log.info "Database $DATABASE_NAME created"
-    else
-      bashio::log.error "Failed to create database $DATABASE_NAME"
-      exit 1
-    fi
-  fi
-else
-  bashio::log.error "PostgreSQL at '$DATABASE_HOST' is not ready or unreachable"
+# Create the PostgreSQL database if it doesn't exist
+bashio::log.info "Checking for database '$DATABASE_NAME' on $DATABASE_HOST"
+# Check the version of PostgreSQL database is v16.7 or later or v17.3 or later
+pg_version=$(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "SELECT regexp_replace(version(), 'PostgreSQL ([^ ]+) .*', '\\1') AS version")
+major_version=$(echo "$pg_version" | cut -d '.' -f 1)
+minor_version=$(echo "$pg_version" | cut -d '.' -f 2)
+compat=true
+case "$major_version" in
+  16)
+    [[ "$minor_version" -lt 7 ]] && compat=false
+    ;;
+  17)
+    [[ "$minor_version" -lt 3 ]] && compat=false
+    ;;
+  *)
+    [[ "$major_version" -lt 16 ]] && compat=false
+    ;;
+esac
+
+if [ $compat = false ]; then
+  bashio::log.error "PostgreSQL version $pg_version is not supported. Please upgrade to v16.7 or later or v17.3 or later."
   exit 1
+fi
+
+if [[ -n $(PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -Atqc "SELECT datname FROM pg_database WHERE datname = '$DATABASE_NAME'") ]]; then
+  bashio::log.info "Database $DATABASE_NAME already exists"
+else
+  if PGPASSWORD="$DATABASE_PASS" psql -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" postgres -qc "CREATE DATABASE \"$DATABASE_NAME\""; then
+    bashio::log.info "Database $DATABASE_NAME created"
+  else
+    bashio::log.error "Failed to create database $DATABASE_NAME"
+    exit 1
+  fi
 fi
 
 # Import dashboards
