@@ -64,6 +64,13 @@ until pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" > /dev/null 2>&1; do
   pg_wait_attempt=$((pg_wait_attempt + 1))
   if [[ "$pg_wait_attempt" -ge "$pg_wait_max" ]]; then
     bashio::log.error "PostgreSQL at '$DATABASE_HOST' is not ready or unreachable after $((pg_wait_max * 2))s"
+    # Distinguish a DNS/networking problem from a database that is simply down,
+    # so the failure is actionable: resolve the host and report what we find.
+    if getent hosts "$DATABASE_HOST" > /dev/null 2>&1; then
+      bashio::log.error "Host '$DATABASE_HOST' resolves to $(getent hosts "$DATABASE_HOST" | awk '{print $1}' | tr '\n' ' ')but is not accepting connections on port $DATABASE_PORT - is the PostgreSQL add-on running and healthy?"
+    else
+      bashio::log.error "Host '$DATABASE_HOST' does not resolve - the PostgreSQL add-on may be stopped or on a different network"
+    fi
     exit 1
   fi
   bashio::log.info "PostgreSQL not ready yet, retrying in 2s (${pg_wait_attempt}/${pg_wait_max})..."

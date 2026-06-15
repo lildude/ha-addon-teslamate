@@ -507,7 +507,7 @@ configure_and_start_teslamate() {
       break
     fi
     if [ "$state" = "error" ]; then
-      dump_teslamate_logs 50
+      dump_diagnostics 50
       err "TeslaMate addon failed to start (state: ${state})"
     fi
     debug "Attempt $((attempt + 1))/${max_attempts}: TeslaMate state=${state}"
@@ -515,7 +515,7 @@ configure_and_start_teslamate() {
     attempt=$((attempt + 1))
   done
   if [ "$state" != "started" ]; then
-    dump_teslamate_logs 50
+    dump_diagnostics 50
     err "TeslaMate addon did not start in time (state: ${state})"
   fi
 
@@ -523,12 +523,21 @@ configure_and_start_teslamate() {
   ok "TeslaMate addon started and ready"
 }
 
-# dump_teslamate_logs() prints the most recent add-on logs (full lines) so a
-# startup failure shows its real cause. It closes any open GitHub Actions log
-# group first so the output is never hidden inside a collapsed fold.
-dump_teslamate_logs() {
+# dump_diagnostics() prints PostgreSQL and TeslaMate add-on logs (full lines) so
+# a startup failure shows its real cause. PostgreSQL is reported first because
+# TeslaMate halts if it cannot reach the database, so a stopped/crashed postgres
+# addon is the most common root cause. Closes any open GitHub Actions log group
+# first so the output is never hidden inside a collapsed fold.
+dump_diagnostics() {
   local lines="${1:-50}"
   group_end
+
+  local pg_state
+  pg_state=$(supervisor_api_jq "/addons/${POSTGRES_SLUG}/info" '.data.state' 2>/dev/null || true)
+  warn "PostgreSQL addon state: ${pg_state:-unknown}"
+  warn "Last ${lines} lines of PostgreSQL add-on logs:"
+  supervisor_api GET "/addons/${POSTGRES_SLUG}/logs" 2>/dev/null | tail -n "${lines}" >&2 || true
+
   warn "Last ${lines} lines of TeslaMate add-on logs:"
   supervisor_api GET "/addons/${TESLAMATE_SLUG}/logs" 2>/dev/null | tail -n "${lines}" >&2 || true
 }
@@ -551,7 +560,7 @@ wait_for_teslamate_ready() {
     # instead of polling uselessly until the timeout.
     state=$(supervisor_api_jq "/addons/${TESLAMATE_SLUG}/info" '.data.state')
     if [ "$state" = "error" ] || [ "$state" = "stopped" ]; then
-      dump_teslamate_logs 50
+      dump_diagnostics 50
       err "TeslaMate crashed during startup (add-on state: ${state})"
     fi
 
@@ -559,7 +568,7 @@ wait_for_teslamate_ready() {
     sleep 5
     attempt=$((attempt + 1))
   done
-  dump_teslamate_logs 50
+  dump_diagnostics 50
   err "TeslaMate did not become ready in time (never saw 'TeslaMateWeb.Endpoint' in logs)"
 }
 
