@@ -343,17 +343,11 @@ configure_and_start_postgres() {
   local postgres_slug="$1"
 
   log "Configuring PostgreSQL addon..."
-  # POSTGRES_INITDB_ARGS=--no-sync makes first-boot initdb skip the recursive
-  # fsync of the data directory. That fsync is the dominant cost of first-time
-  # initialisation and on slow CI storage it pushes startup past the postgres
-  # add-on's hard 2-minute "Postgres did not start" timeout. --no-sync is the
-  # documented, test-oriented option and is safe here because this is an
-  # ephemeral dev/CI database where durability does not matter.
   local options_json
   options_json=$(jq -n \
     --arg pw "$POSTGRES_PASSWORD" \
     --arg db "$POSTGRES_DB" \
-    '{options: {POSTGRES_PASSWORD: $pw, POSTGRES_DB: $db, POSTGRES_INITDB_ARGS: "--no-sync", env_vars: []}}')
+    '{options: {POSTGRES_PASSWORD: $pw, POSTGRES_DB: $db, env_vars: []}}')
 
   supervisor_api_post "/addons/${postgres_slug}/options" \
     "${options_json}" > /dev/null
