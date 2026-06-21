@@ -34,28 +34,10 @@ jobs:
             DEBUG=${{ vars.DEBUG }}
             GITHUB_ACTIONS=true
           runCmd: |
-            echo "::group::Build add-on locally" >&2
-            # The committed config.json carries an "image" key (required by the
-            # release/publish pipeline) plus "version": "dev". Left in place, the
-            # Supervisor pulls ghcr.io/...-{arch}:dev - a tag that is never
-            # published - and the integration test fails. Strip the key BEFORE
-            # starting Supervisor so its first store scan builds from the local
-            # Dockerfile; stripping later is unreliable because /store/reload
-            # does not re-read an already-scanned local add-on's image field.
             if jq -e 'has("image")' config.json >/dev/null 2>&1; then
               jq 'del(.image)' config.json > config.json.tmp && mv config.json.tmp config.json
-              echo "Removed 'image' key from config.json - add-on will build locally" >&2
             fi
-            echo "::endgroup::" >&2
-            echo "::group::Start Supervisor" >&2
-            # AppArmor profile enforcement on add-on containers makes the
-            # PostgreSQL add-on's first-boot initdb file I/O so slow it blows
-            # past that add-on's hard 2-minute startup timeout on GitHub Actions
-            # runners. SUPERVISOR_UNCONFINED only unconfines the Supervisor
-            # itself, not the add-ons it launches, so instead stub apparmor_parser
-            # to a no-op and mount it into the Supervisor's privileged container.
-            # Add-on profiles are then never loaded and add-ons run effectively
-            # unconfined (matches the proven ha-addon-ghostfolio CI setup).
+
             printf '#!/bin/sh\nexit 0\n' | sudo tee /usr/sbin/apparmor_parser > /dev/null && sudo chmod +x /usr/sbin/apparmor_parser
             sudo sed -i 's|docker run --rm --privileged|docker run --rm --privileged -v /usr/sbin/apparmor_parser:/usr/sbin/apparmor_parser:ro|' /usr/bin/supervisor_run
             if [ -n "${DEBUG:-}" ]; then
@@ -63,5 +45,5 @@ jobs:
             else
               supervisor_run > /dev/null 2>&1 &
             fi
-            echo "::endgroup::" >&2
+
             bash .devcontainer/setup-ha.sh
