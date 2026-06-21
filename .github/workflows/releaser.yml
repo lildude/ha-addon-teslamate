@@ -19,7 +19,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           path: teslamate
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -28,7 +28,7 @@ jobs:
           echo "latest_release=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --silent https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .tag_name | sed s/v// )" >> $GITHUB_ENV
       - name: Increment semver
         id: semver
-        uses: matt-FFFFFF/simple-semver@v0.1.1
+        uses: matt-FFFFFF/simple-semver@967d66a65b0c5afae2a815ab2d311f66a32293ab # v0.1.1
         with:
           semver-input: ${{ env.latest_release }}
           increment: ${{ github.event.inputs.semverIncrement }}
@@ -52,7 +52,7 @@ jobs:
           git push --tags
         working-directory: ${{ github.workspace }}/teslamate
       - name: Create release
-        uses: softprops/action-gh-release@v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: v${{ steps.semver.outputs.semver }}
           body_path: CHANGELOG.txt
@@ -61,7 +61,7 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout addon repo
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           path: repo
           repository: lildude/ha-addons
