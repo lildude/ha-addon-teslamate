@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Build add-on
-        uses: home-assistant/builder@2026.03.2
+        uses: home-assistant/builder@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
         with:
           args: |
             --test \
