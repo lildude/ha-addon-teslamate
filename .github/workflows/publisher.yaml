@@ -21,7 +21,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
 
       - name: Get version
         id: version
