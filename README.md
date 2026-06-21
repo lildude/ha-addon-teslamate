@@ -85,6 +85,6 @@ Everything should pick up where it was before.
 [repo-btn]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
 [sponsor-badge]: https://img.shields.io/badge/Sponsor_Me-%E2%9D%A4-ec6cb9?logo=GitHub
 [teslamate-backup]: https://docs.teslamate.org/docs/maintenance/backup_restore
-[teslamate-version]: https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fgithub.com%2Flildude%2Fha-addon-teslamate%2Fblob%2Fd4eb61330479d83aa41489792ab2ea41167e4462%2FDockerfile&search=teslamate_version%3D(%3F%3Ccurrent_ver%3E%5Cd%2B%5C.%5Cd%2B%5C.%5Cd%2B)&replace=%241&label=TeslaMate%20Version
+[teslamate-version]: https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fgithub.com%2Flildude%2Fha-addon-teslamate%2Fblob%2Fmain%2FDockerfile&search=teslamate_version%3D(%3F%3Ccurrent_ver%3E%5Cd%2B%5C.%5Cd%2B%5C.%5Cd%2B)&replace=%241&label=TeslaMate%20Version
 [teslamate]: https://github.com/teslamate-org/teslamate/
 [timescaledb]: https://github.com/expaso/hassos-addon-timescaledb
