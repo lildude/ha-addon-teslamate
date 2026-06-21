@@ -13,10 +13,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": "^build.json$",
+      "fileMatch": "(^|/)Dockerfile$",
       "matchStrings": [
-        "\"teslamate/teslamate:(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
-        "\"teslamate_version\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+        "ARG teslamate_version=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "teslamate-org/teslamate"

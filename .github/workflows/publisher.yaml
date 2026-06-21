@@ -11,41 +11,76 @@ on:
         type: string
 
 jobs:
-  publish:
-    name: Publish
+  init:
+    name: Initialize build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-    strategy:
-      matrix:
-        arch: ["amd64", "aarch64"]
-
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Get version
+        id: version
         run: |
-          version=${{ inputs.version }}
+          version="${{ inputs.version }}"
           if [ -n "$version" ]; then
-            echo "latest_release=$version" >> $GITHUB_ENV
+            echo "version=${version}" >> "$GITHUB_OUTPUT"
           else
-            echo "latest_release=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --silent https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | jq -r .tag_name | sed s/v// )" >> $GITHUB_ENV
+            echo "version=$(curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --silent "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest" | jq -r .tag_name | sed s/v//)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build matrix
+        id: matrix
+        run: |
+          # Derive the per-arch build matrix from config.json. amd64 and aarch64
+          # build on native runners (no QEMU). Base image, build args and labels
+          # all live in the Dockerfile, so nothing extra is needed here.
+          image_template=$(jq -r '.image' config.json)
+          architectures=$(jq -r '.arch[]' config.json)
+          matrix='{"include":[]}'
+          for arch in $architectures; do
+            case "${arch}" in
+              amd64) os="ubuntu-24.04" ;;
+              aarch64) os="ubuntu-24.04-arm" ;;
+              *) echo "::error::Unsupported architecture: ${arch}"; exit 1 ;;
+            esac
+            image="${image_template//\{arch\}/${arch}}"
+            matrix=$(jq -c \
+              --arg arch "$arch" \
+              --arg os "$os" \
+              --arg image "$image" \
+              '.include += [{arch: $arch, os: $os, image: $image}]' <<< "${matrix}")
+          done
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.arch }} image
+    needs: init
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Build and publish
-        uses: home-assistant/builder@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
+        uses: home-assistant/builder/actions/build-image@4de35182ce1e329181bffcbcc84d33db5e2c7e10 # 2026.06.0
         with:
-          args: |
-            --${{ matrix.arch }} \
-            --version ${{ env.latest_release }} \
-            --target /data/ \
-            --addon
+          arch: ${{ matrix.arch }}
+          image: ${{ matrix.image }}
+          image-tags: |
+            ${{ needs.init.outputs.version }}
+            latest
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          push: "true"
+          cosign: "false"
+          version: ${{ needs.init.outputs.version }}
