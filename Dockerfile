@@ -1,4 +1,4 @@
-ARG teslamate_version=4.0.1
+ARG teslamate_version=4.1.1
 FROM teslamate/grafana:${teslamate_version} AS grafana
 
 #---
