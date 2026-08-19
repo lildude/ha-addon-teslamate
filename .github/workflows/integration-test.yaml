@@ -17,6 +17,13 @@ on:
       - Dockerfile
       - rootfs/**
       - .devcontainer/**
+  # Home Assistant and the third-party add-on repository this test installs both
+  # move independently of this repo, so the test can break with no change here.
+  # Run it on a schedule to catch that on main rather than on an unrelated pull
+  # request that happens to touch one of the paths above.
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
 
 jobs:
   integration:
@@ -30,20 +37,22 @@ jobs:
       - name: Run integration test in devcontainer
         uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
         with:
-          env: |
-            DEBUG=${{ vars.DEBUG }}
-            GITHUB_ACTIONS=true
-          runCmd: |
-            if jq -e 'has("image")' config.json >/dev/null 2>&1; then
-              jq 'del(.image)' config.json > config.json.tmp && mv config.json.tmp config.json
-            fi
+          runCmd: bash .devcontainer/run-integration-test.sh stable
 
-            printf '#!/bin/sh\nexit 0\n' | sudo tee /usr/sbin/apparmor_parser > /dev/null && sudo chmod +x /usr/sbin/apparmor_parser
-            sudo sed -i 's|docker run --rm --privileged|docker run --rm --privileged -v /usr/sbin/apparmor_parser:/usr/sbin/apparmor_parser:ro|' /usr/bin/supervisor_run
-            if [ -n "${DEBUG:-}" ]; then
-              supervisor_run &
-            else
-              supervisor_run > /dev/null 2>&1 &
-            fi
+  # Early warning for Home Assistant changes that have not reached stable yet.
+  # Deliberately never runs on a pull request, so a broken beta cannot block a
+  # merge, and is non-blocking when it does run.
+  canary:
+    name: Integration test (beta)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-            bash .devcontainer/setup-ha.sh
+      - name: Run integration test in devcontainer
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
+        with:
+          runCmd: bash .devcontainer/run-integration-test.sh beta
