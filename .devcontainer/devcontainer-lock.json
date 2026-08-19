@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {
+      "version": "2.1.1",
+      "resolved": "ghcr.io/eitsupi/devcontainer-features/jq-likes@sha256:6a8b044f9f424097ec6d212167836b26994a76a556cbcb202084be79fe8032bd",
+      "integrity": "sha256:6a8b044f9f424097ec6d212167836b26994a76a556cbcb202084be79fe8032bd"
+    },
+    "ghcr.io/jungaretti/features/ripgrep:1": {
+      "version": "1.0.1",
+      "resolved": "ghcr.io/jungaretti/features/ripgrep@sha256:c0922b6f4a9184080c8435b6ef25983dee6c734733f0a749d852ad0d33de2253",
+      "integrity": "sha256:c0922b6f4a9184080c8435b6ef25983dee6c734733f0a749d852ad0d33de2253"
+    }
+  }
+}

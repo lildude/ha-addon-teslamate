@@ -13,6 +13,12 @@
   "init": false,
   "panel_icon": "mdi:car-connected",
   "panel_title": "TeslaMate",
+  "ports": {
+      "4000/tcp": null
+  },
+  "ports_description": {
+    "4000/tcp": "Web interface (not required for Home Assistant ingress)"
+  },
   "options": {
     "database_user": null,
     "database_pass": null,
