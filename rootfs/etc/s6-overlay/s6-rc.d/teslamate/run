@@ -18,6 +18,9 @@ MQTT_PASSWORD=$(bashio::config 'mqtt_pass')
 MQTT_TLS_ACCEPT_INVALID_CERTS=$(bashio::config 'mqtt_tls_accept_invalid_certs')
 MQTT_TLS=$(bashio::config 'mqtt_tls')
 MQTT_USERNAME=$(bashio::config 'mqtt_user')
+MQTT_HOME_ASSISTANT_DISCOVERY=$(bashio::config 'mqtt_home_assistant_discovery')
+MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX=$(bashio::config 'mqtt_home_assistant_discovery_prefix')
+MQTT_HOME_ASSISTANT_DISCOVERY_URL=$(bashio::config 'mqtt_home_assistant_discovery_url')
 
 # Other things
 IMPORT_DIR=$(bashio::config 'import_dir')
@@ -42,7 +45,16 @@ export URL_PATH=$ingress_entry
 
 export DATABASE_HOST DATABASE_NAME DATABASE_PASS DATABASE_PORT DATABASE_USER \
   DISABLE_MQTT MQTT_HOST MQTT_NAMESPACE MQTT_PASSWORD MQTT_TLS_ACCEPT_INVALID_CERTS \
-  MQTT_TLS MQTT_USERNAME IMPORT_DIR PORT TZ DEFAULT_GEOFENCE ENCRYPTION_KEY URL_PATH
+  MQTT_TLS MQTT_USERNAME IMPORT_DIR PORT TZ DEFAULT_GEOFENCE ENCRYPTION_KEY URL_PATH \
+  MQTT_HOME_ASSISTANT_DISCOVERY
+
+if [ -n "$MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX" ]; then
+  export MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX
+fi
+
+if [ -n "$MQTT_HOME_ASSISTANT_DISCOVERY_URL" ]; then
+  export MQTT_HOME_ASSISTANT_DISCOVERY_URL
+fi
 
 # These are optional and applied last so we can override those set above if needed.
 for env_var in $(bashio::config 'env_vars|keys'); do
