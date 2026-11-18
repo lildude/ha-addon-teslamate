@@ -65,10 +65,6 @@ See the [official docs][mosquitto-docs] on how to configure access control with 
 
 - `mqtt_home_assistant_discovery`: Automatically publish MQTT discovery topics for Home Assistant. Default: `false`.
 
-- `mqtt_home_assistant_discovery_prefix`: Topic prefix used for Home Assistant MQTT discovery. Default: `homeassistant`.
-
-- `mqtt_home_assistant_discovery_url`: (Optional) The TeslaMate web interface URL to show in the Home Assistant device panel.
-
 #### Grafana Options
 
 I recommend you use the existing [Grafana add-on][grafana-addon] from the community add-ons, if you do, please enable the following plugins in your yaml configurations, e.g.

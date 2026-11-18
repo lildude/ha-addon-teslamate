@@ -40,12 +40,6 @@ configuration:
   mqtt_home_assistant_discovery:
     name: MQTT Home Assistant Discovery
     description: Automatically publish MQTT discovery topics for Home Assistant.
-  mqtt_home_assistant_discovery_prefix:
-    name: MQTT Home Assistant Discovery Prefix
-    description: Topic prefix used for Home Assistant MQTT discovery (defaults to homeassistant).
-  mqtt_home_assistant_discovery_url:
-    name: MQTT Home Assistant Discovery URL
-    description: (Optional) The TeslaMate web interface URL to show in the Home Assistant device panel.
   grafana_import_dashboards:
     name: Import Grafana Dashboards?
     description: Automatically import the grafana dashboards on startup?
