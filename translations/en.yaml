@@ -37,6 +37,9 @@ configuration:
   mqtt_namespace:
     name: MQTT Namespace
     description: MQTT namespace.
+  mqtt_home_assistant_discovery:
+    name: MQTT Home Assistant Discovery
+    description: Automatically publish MQTT discovery topics for Home Assistant.
   grafana_import_dashboards:
     name: Import Grafana Dashboards?
     description: Automatically import the grafana dashboards on startup?
