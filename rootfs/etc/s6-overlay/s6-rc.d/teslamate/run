@@ -34,11 +34,7 @@ if bashio::config.is_empty 'encryption_key'; then
 fi
 ENCRYPTION_KEY=$(bashio::config 'encryption_key')
 
-ingress_entry=$(curl -X GET \
-                     -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
-                     -H "Content-Type: application/json" \
-                     -s http://supervisor/addons/self/info | \
-                     jq -r '.data.ingress_entry')
+ingress_entry=$(bashio::addon.ingress_entry)
 
 export URL_PATH=$ingress_entry
 
