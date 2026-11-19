@@ -38,7 +38,8 @@ ingress_entry=$(bashio::addon.ingress_entry)
 
 export URL_PATH=$ingress_entry
 
-MQTT_HOME_ASSISTANT_DISCOVERY_URL="homeassistant://navigate${ingress_entry}"
+addon_slug=$(bashio::addons self addons.self.slug .slug)
+MQTT_HOME_ASSISTANT_DISCOVERY_URL="homeassistant://hassio/ingress/${addon_slug}"
 
 export DATABASE_HOST DATABASE_NAME DATABASE_PASS DATABASE_PORT DATABASE_USER \
   DISABLE_MQTT MQTT_HOST MQTT_NAMESPACE MQTT_PASSWORD MQTT_TLS_ACCEPT_INVALID_CERTS \
