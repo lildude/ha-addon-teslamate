@@ -63,6 +63,8 @@ See the [official docs][mosquitto-docs] on how to configure access control with 
 
 - `mqtt_namespace`: MQTT Namespace
 
+- `mqtt_home_assistant_discovery`: Automatically publish MQTT discovery topics for Home Assistant. Default: `false`.
+
 #### Grafana Options
 
 I recommend you use the existing [Grafana add-on][grafana-addon] from the community add-ons, if you do, please enable the following plugins in your yaml configurations, e.g.
